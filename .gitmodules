@@ -2,5 +2,5 @@
   path = data
   url = https://github.com/fow-placeholder-name/cards-json
 [submodule "img"]
-  path = img
-  url = https://github.com/fow-placeholder-name/cards-images
+	path = img
+	url = https://github.com/fow-placeholder-name/cards-images
