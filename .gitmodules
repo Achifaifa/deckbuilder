@@ -4,3 +4,6 @@
 [submodule "img"]
 	path = img
 	url = https://github.com/fow-placeholder-name/cards-images
+[submodule "icons"]
+	path = icons
+	url = https://github.com/fow-placeholder-name/resources-icons
