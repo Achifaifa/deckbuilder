@@ -9,11 +9,19 @@
 #toolbar{
   background-color:#777;
   padding:3px;
+  height:24;
   width:100%;
 }
+#toolbar_extended{
+
+}
 #filters{
+  height:24;
   background-color:#999;
   padding:3px;
+}
+#filters_extended{
+
 }
 #cards{
   height:100%;
@@ -24,8 +32,8 @@
 #card{
   margin:10px;
   width:150px;
-  height:230px;
-  float:left;
+/*  height:230px;
+*/  float:left;
   background-color:#CCC;
 }
 #deck{
