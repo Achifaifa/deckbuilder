@@ -4,41 +4,27 @@
 <script src='deckbuilder.js'></script>
 
 <div id='container'>
+
   <!--top div-->
   <div id='toolbar'>
-
-
-
-  Format:
-  <select>
-    <option value="1">Origin</option>
-    <option value="1">New Frontiers</option>
-    <option value="1">Wanderer</option>
-  </select>
-  Banlist:
-  <select>
-    <option value="1">None</option>
-    <option value="1">--</option>
-    <option value="1">--</option>
-  </select>
-  [Card size adjust] Other general options here
-
+  status/general options here <button style="text-align:right">settings</button>
   </div>
 
   <!--filter div-->
   <div id='filters'>
-
   <input type='text' placeholder='search'></input>
-
-  [colours here]
-
-  [advanced filtering button]
-
+  <button style="background-color:yellow">Y</button>
+  <button style="background-color:red">R</button>
+  <button style="background-color:blue">B</button>
+  <button style="background-color:green">G</button>
+  <button style="background-color:purple">P</button>
+  <button style="background-color:grey">V</button>
+  <button>advanced filtering</button>
   </div>
 
   <!--card area-->
   <div id='cards'>
-
+    <div id='card'><center><br/><br/><br/>[Card image]<br/><br/><br/><br/><br/><br/>[Readable text overlay]</div>
     <div id='card'></div>
     <div id='card'></div>
     <div id='card'></div>
@@ -50,27 +36,28 @@
     <div id='card'></div>
     <div id='card'></div>
     <div id='card'></div>
-    <div id='card'></div>
-
   </div>
+
   <!--deck column-->
   <div id='deck'>
-
   <center>
+    
+    <button>load</button>
+    <button>save</button>
+    <br/>
     [Deck name]
     <br/>
     [Graph]
     <br/><br/>
     --[ruler]--<br/>rulercard<br/>
     <br/>
-    --[Main deck]--<br/>(x1) card1<br/>(x2) card2<br/>(x1) card3<br/>
+    --[Main deck](12)--<br/>(x4) card1<br/>(x4) card2<br/>(x4) card3<br/>
     <br/>
-    --[Stone deck]--<br/>(x10) stone stone<br/>
+    --[Stone deck](10)--<br/>(x10) stone stone<br/>
     <br/>
-    <button>Add deck</button>
+    <button>Add extra deck</button>
     <br/>
-    --[Sideboard]--
-  </center>
-
+    --[Sideboard](1)--<br/>(x1) card4<br/>
   </div>
+
 </div>
