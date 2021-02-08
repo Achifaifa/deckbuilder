@@ -1,3 +1,6 @@
 [submodule "data"]
-	path = data
-	url = https://github.com/achifaifa/cards-json
+  path = data
+  url = https://github.com/fow-placeholder-name/cards-json
+[submodule "img"]
+  path = img
+  url = https://github.com/fow-placeholder-name/cards-images
