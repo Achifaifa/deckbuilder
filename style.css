@@ -31,9 +31,7 @@
 }
 #card{
   margin:10px;
-  width:150px;
-/*  height:230px;
-*/  float:left;
+  float:left;
   background-color:#CCC;
 }
 #deck{
