@@ -1,9 +1,9 @@
 [submodule "data"]
   path = data
   url = https://github.com/fow-placeholder-name/cards-json
-[submodule "img"]
-	path = img
-	url = https://github.com/fow-placeholder-name/cards-images
 [submodule "icons"]
 	path = icons
 	url = https://github.com/fow-placeholder-name/resources-icons
+[submodule "img"]
+	path = img
+	url = https://github.com/attoractiamem/cards-images-thumbnails
