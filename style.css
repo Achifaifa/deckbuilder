@@ -12,16 +12,17 @@
   height:24;
   width:100%;
 }
-#toolbar_extended{
+#toolbar_extra{
 
 }
 #filters{
-  height:24;
   background-color:#999;
   padding:3px;
 }
-#filters_extended{
-
+#filters_extra{
+  background-color:#777;
+  visibility: collapse;
+  height:0;
 }
 #cards{
   height:100%;

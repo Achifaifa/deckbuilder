@@ -14,7 +14,14 @@ document.getElementById('preferences').onclick = function() {
 //Advanced search options menu
 document.getElementById('searchopts').onclick = function() {
    search_expanded=!search_expanded
-   document.getElementById('filters').style.height=24+(500*search_expanded)
+   if(search_expanded==1){
+      document.getElementById('filters_extra').style.visibility="visible"
+      document.getElementById('filters_extra').style.height=150
+   }
+   else{
+      document.getElementById('filters_extra').style.visibility="collapse"
+      document.getElementById('filters_extra').style.height=0
+   }
 };
 
 //Default deck
