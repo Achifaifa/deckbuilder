@@ -158,11 +158,11 @@ function drawcards()
   var html=""
   var cols=4
   //calculate columns
-  var cardwidth=(document.getElementById('cards').offsetWidth/cols)-20
+  var cardwidth=(document.getElementById('cards').offsetWidth/cols)
   while(cardwidth<125 || cardwidth>175){
     if(cardwidth<125){cols-=1}
     else{cols+=1}
-    cardwidth=(document.getElementById('cards').offsetWidth/cols)-20
+    cardwidth=(document.getElementById('cards').offsetWidth/cols)
   }
   //get visible size of cards div (https://stackoverflow.com/questions/12868287/get-height-of-non-overflowed-portion-of-div)
   var offs=0
@@ -174,7 +174,8 @@ function drawcards()
   var height=n.offsetHeight-offs
 
   //calculate rows
-  var rows=(height/((cardwidth+20)*1.396))-1
+  var rows=Math.floor(height/((cardwidth+20)*1.396))
+  console.log(rows)
 
   for(var i=0;i<cols*rows;i++){
     html+="<div id='card'><img src='./img/card-Back.png' width='"+cardwidth+"'></img></div>"
