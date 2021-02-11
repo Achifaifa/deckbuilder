@@ -2,37 +2,52 @@ window.onload=function(){
 
 search_expanded=0
 settings_expanded=0
+search_source=0 //0: normal pool, 1: cardlist
 
 document.getElementById('status').innerText="Load OK"
 
 //Settings menu
 document.getElementById('preferences').onclick = function() {
-   settings_expanded=!settings_expanded
-   document.getElementById('toolbar').style.height=24+(500*settings_expanded)
+  settings_expanded=!settings_expanded
+  document.getElementById('toolbar').style.height=24+(500*settings_expanded)
 };
 
 //Advanced search options menu
 document.getElementById('searchopts').onclick = function() {
-   search_expanded=!search_expanded
-   if(search_expanded==1){
-      document.getElementById('filters_extra').style.visibility="visible"
-      document.getElementById('filters_extra').style.height=150
-   }
-   else{
-      document.getElementById('filters_extra').style.visibility="collapse"
-      document.getElementById('filters_extra').style.height=0
-   }
+  search_expanded=!search_expanded
+  if(search_expanded==1){
+    document.getElementById('filters_extra').style.visibility="visible"
+    document.getElementById('filters_extra').style.height=150
+  }
+  else{
+    document.getElementById('filters_extra').style.visibility="collapse"
+    document.getElementById('filters_extra').style.height=0
+  }
 };
+
+//Change from card pool to cardlist
+document.getElementById('swapsources').onclick=function(){
+  search_source=!search_source
+  if(search_source==1){
+    var html="<button>Import cardlist</button>"
+    document.getElementById('swapsources').innerText="Use card pool"    
+  }
+  else{
+    var html="Format <select><option>Wanderer</option></select>\
+              sets <input type='text'></input>\
+              Banlist <select><option>None</option></select>"
+    document.getElementById('swapsources').innerText="Use cardlist"      
+  }
+  document.getElementById('sources').innerHTML=html
+}
 
 //Default deck
 deck={
   'deckname':'New deck',
   'ruler':'none',
-  'main':["card1","card2"],
-  'stone':["card1","card2"],
-  'side':["card1","card2"],
-  'extra1':["card1","card2"],
-  'extra1name':"Stranger deck"
+  'main':[],
+  'stone':[],
+  'side':[],
 }
 
 //Draw deck on deck zone
@@ -175,7 +190,6 @@ function drawcards()
 
   //calculate rows
   var rows=Math.floor(height/((cardwidth+20)*1.396))
-  console.log(rows)
 
   for(var i=0;i<cols*rows;i++){
     html+="<div id='card'><img src='./img/card-Back.png' width='"+cardwidth+"'></img></div>"
@@ -189,7 +203,6 @@ function drawcards()
     dcards[i].onclick=function(){
       var imgurl=this.getElementsByTagName('img')[0].src
       var imgname=imgurl.split('.')[0].split('/').slice(-1)[0]
-      console.log(imgname)
       deck.main.push(imgname)
       drawdeck()
     }

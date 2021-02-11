@@ -22,15 +22,33 @@
     <img width="30px" src="./icons/will_wind.png"></img>
     <img width="30px" src="./icons/will_dark.png"></img>
     <img width="30px" src="./icons/will_void.png"></img>
-    <button id='searchopts'>advanced filtering</button>
+    <img width="30px" src="./icons/cost_0.png"></img>
+    <img width="30px" src="./icons/cost_1.png"></img>
+    <img width="30px" src="./icons/cost_2.png"></img>
+    <img width="30px" src="./icons/cost_3.png"></img>
+    <img width="30px" src="./icons/cost_4.png"></img>
+    <img width="30px" src="./icons/cost_5.png"></img>
+    <img width="30px" src="./icons/cost_6.png"></img>
+    <img width="30px" src="./icons/cost_7.png"></img>
+    <img width="30px" id='searchopts' src="./icons/misc_more.png"></img>
   </div>
-  <div id='filters_extra'>
-    Format <select><option>Wanderer</option></select>
-    Banlist <select><option>None</option></select>
-    Will cost: [0] [1] [2] [3] [4] [5] [6] [7+]<br/>
-    [Resonator] [Chant] [Addition] [Ruler] [Regalia]<br/>
-    Race/s <input type='text'></input><br/>
-    set <input type='text'></input><br/>
+  <div id='filters_extra'><center>
+    <span id="sources">
+      Format <select><option>Wanderer</option></select>
+      sets <input type='text'></input>
+      Banlist <select><option>None</option></select>
+    </span>
+    <button id="swapsources">Use cardlist</button>
+    <br/><br/>
+    <span id="cardtype">Resonator</span>
+    <span id="cardtype">Chant</span>
+    <span id="cardtype">Addition</span>
+    <span id="cardtype">Ruler</span>
+    <span id="cardtype">Regalia</span>
+    <br/><br/>
+    Race/s <input type='text'></input>
+    <br/><br/>
+    <button>Search</button>
     <button id='resetopts'>reset</button>
   </div>
   
@@ -41,7 +59,6 @@
 
   <!--deck column-->
   <div id='deck'>
-  <center>
   </div>
 
 </div>
