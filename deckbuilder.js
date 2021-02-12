@@ -3,6 +3,24 @@ window.onload=function(){
 search_expanded=0
 settings_expanded=0
 search_source=0 //0: normal pool, 1: cardlist
+will_types=["light", "fire", "water", "wind", "dark", "void"]
+will_equivs={"light":"{W}", "fire":"{R}", "water":"{U}", "wind":"{G}", "dark":"{B}"}
+cost_types=["0", "1", "2", "3", "4", "5", "6", "7"]
+//Search parameters
+//will -> [Y,R,B,G,P,V]
+//cost -> [0,1,2,3,4,5,6,7]
+//textc -> <string>
+//types -> [Resonator, chant, addition, ruler, etc]
+//sets -> [<set1>, <set2>, etc]
+//races -> [<race1>, <race2>, etc]
+//
+search_params={
+  'will':[0,0,0,0,0,0],
+  'cost':[0,0,0,0,0,0,0]
+}
+carddb=[]
+filteredcards=[]
+page=1
 
 document.getElementById('status').innerText="Load OK"
 
@@ -10,19 +28,6 @@ document.getElementById('status').innerText="Load OK"
 document.getElementById('preferences').onclick = function() {
   settings_expanded=!settings_expanded
   document.getElementById('toolbar').style.height=24+(500*settings_expanded)
-};
-
-//Advanced search options menu
-document.getElementById('searchopts').onclick = function() {
-  search_expanded=!search_expanded
-  if(search_expanded==1){
-    document.getElementById('filters_extra').style.visibility="visible"
-    document.getElementById('filters_extra').style.height=150
-  }
-  else{
-    document.getElementById('filters_extra').style.visibility="collapse"
-    document.getElementById('filters_extra').style.height=0
-  }
 };
 
 //Change from card pool to cardlist
@@ -47,7 +52,7 @@ deck={
   'ruler':'none',
   'main':[],
   'stone':[],
-  'side':[],
+  'side':[]
 }
 
 //Draw deck on deck zone
@@ -191,7 +196,10 @@ function drawcards()
   //calculate rows
   var rows=Math.floor(height/((cardwidth+20)*1.396))
 
-  for(var i=0;i<cols*rows;i++){
+  var tcards=cols*rows
+
+  for(var i=0;i<tcards;i++){
+    //filteredcards[(page*tcards)+i].name
     html+="<div id='card'><img src='./img/card-Back.png' width='"+cardwidth+"'></img></div>"
   }
 
@@ -209,12 +217,148 @@ function drawcards()
   }
 }
 
+//Draw updated search parameters
+function drawsearch(){
+
+  var html=""
+  html+="<input type='text' placeholder='search'></input>"
+  for(var i=0;i<will_types.length;i++){
+    html+="<img width='30px' id='icon' src='./icons/will_"+will_types[i]+".png'></img>"
+  }
+  for(var i=0;i<8;i++){
+    html+="<img width='30px' id='icon' src='./icons/cost_"+i+".png'></img>"
+  }
+  html+="<img width='30px' id='searchopts' src='./icons/misc_more.png'></img>"
+
+  document.getElementById('filters').innerHTML=html
+
+  //Modify icon transparency
+  var ics=document.querySelectorAll('[id=icon]')
+  var tps=search_params.will.concat(search_params.cost)
+  for(var i=0;i<ics.length;i++){
+    ics[i].style.opacity=0.4+(0.6*tps[i])
+  }
+
+
+  //add listeners
+
+  //Icon attribute/cost toggles
+  for(var i=0;i<ics.length;i++){
+    ics[i].onclick=function(){
+      type=this.src.split("_")[1].split(".")[0]
+      if(will_types.indexOf(type)!=-1){
+        search_params.will[will_types.indexOf(type)]^=1
+      }
+      else{
+        search_params.cost[cost_types.indexOf(type)]^=1
+      }
+      drawsearch()
+      filtercards()
+      drawcards()
+    }
+  }
+
+  //Advanced search options menu
+  document.getElementById('searchopts').onclick = function() {
+    search_expanded=!search_expanded
+    if(search_expanded==1){
+      document.getElementById('filters_extra').style.visibility="visible"
+      document.getElementById('filters_extra').style.height=150
+    }
+    else{
+      document.getElementById('filters_extra').style.visibility="collapse"
+      document.getElementById('filters_extra').style.height=0
+    }
+  };
+}
+
+//initial card load
+function loadcards(){
+  cards=cards.fow.clusters
+  for(var i=0;i<cards.length;i++){
+    for(var j=0;j<cards[i].sets.length;j++){
+      carddb=carddb.concat(cards[i].sets[j].cards)
+    }
+  }
+}
+
+function filtercards(){
+
+  
+  setfcards=carddb
+  //Filter by set (Has to be done first)
+  if(search_params.sets!=undefined){
+
+  }
+
+  //Filter by attribute (will cost colours)
+  //Attributes in DB are {W}{R}{U}{G}{B}
+  var willfcards=[]
+  var swills=[]
+  for(var i=0;i<search_params.will.length;i++){
+    if(search_params.will[i]==1){
+      swills.push(will_equivs[will_types[i]])
+    }
+  }
+  if(swills.length>0){
+    for(var i=0;i<setfcards.length;i++){
+      if(swills.every(z=>setfcards[i].cost.includes(z))){
+        willfcards.push(setfcards[i])
+      }
+    }
+  }
+  else {willfcards=setfcards}
+
+  //Filter by cost
+  var costfcards=[]
+  var scosts=[]
+  if(search_params.cost.some(it=>it!=0)){
+    for(var i=0;i<search_params.cost.length;i++){
+      if(search_params.cost[i]==1){
+        scosts.push(i)
+      }
+    }
+  }
+  console.log(scosts)
+  if(scosts.length>0){
+    for(var i=0;i<willfcards.length;i++){
+      var ccost=parseInt(willfcards[i].cost.replaceAll(/[^\d]/g, '') || 1)+(willfcards[i].cost.match(/\}/g)||[]).length-1
+      if(scosts.indexOf(ccost)!=-1){
+        costfcards.push(willfcards[i])
+      }
+    }
+  }
+  else{costfcards=willfcards}
+
+  //Filter by text
+  if(search_params.textc!=undefined){
+
+  }
+
+  //Filter by type
+  if(search_params.types!=undefined){
+
+  }
+
+  //Filter by race
+  if(search_params.races!=undefined){
+
+  }
+
+  filteredcards=costfcards
+
+  console.log(filteredcards.length)
+}
+
 //card area redraw on resize
 window.addEventListener('resize',function(e){
   drawcards()
 })
 
 //Populate page for the first time
+loadcards()
+filtercards()
 drawcards()
 drawdeck()
+drawsearch()
 }
