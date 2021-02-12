@@ -64,3 +64,45 @@
 #searchopts{
   cursor:pointer;
 }
+#arrowprev{
+  cursor:pointer;
+  left:5%;
+  position:absolute;
+  background-color:#FF0000;
+}
+#arrownext{
+  cursor:pointer;
+  right:25%;
+  position:absolute;
+  background-color:#00FF00;
+}
+#decksection{
+  display: inline-block; 
+  width:100%;
+  border:1px solid black;
+  border-radius: 15px;
+}
+#maindeck{
+  display: inline-block; 
+  width:100%;
+  border:1px solid black;
+  border-radius: 15px;
+}
+#stonedeck{
+  display: inline-block; 
+  width:100%;
+  border:1px solid black;
+  border-radius: 15px;
+}
+#sideboard{
+  display: inline-block; 
+  width:100%;
+  border:1px solid black;
+  border-radius: 15px;
+}
+.extra{
+  display: inline-block; 
+  width:100%;
+  border:1px solid black;
+  border-radius: 15px;
+}
