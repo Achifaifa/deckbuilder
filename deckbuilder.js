@@ -200,12 +200,12 @@ function drawcards()
   for(var i=0;i<tcards;i++){
     try{var cname=filteredcards[(search_page*tcards)+i].name}
     catch{cname="--"}
-    html+="<div id='card'>"+cname+"<br/><img src='./img/card-Back.png' width='"+cardwidth+"'></img></div>"
+    html+="<div id='card'><img src='./img/card-Back.png' width='"+cardwidth+"'></img><br/><center>"+cname+"</div>"
   }
 
   //add page navigation buttons
-  html+="<div id='arrowprev'> <<< </div>"
-  html+="<div id='arrownext'> >>> </div>"
+  html+="<div id='arrowprev'> <<<< <br/> <<<< </div>"
+  html+="<div id='arrownext'> >>>> <br/> >>>> </div>"
 
   document.getElementById('cards').innerHTML=html
 
@@ -221,10 +221,10 @@ function drawcards()
 
     //use loop to fix width
     dcards[i].style.width=cardwidth
-    dcards[i].style.height="300px"
+    dcards[i].style.height="250px" //temporary
   }
 
-  var maxpages=Math.ceil(filteredcards.length/tcards)
+  var maxpages=Math.floor((filteredcards.length-1)/tcards)
   console.log(filteredcards)
   document.getElementById('arrowprev').onclick=function(){
     search_page-=1

@@ -69,12 +69,14 @@
   left:5%;
   position:absolute;
   background-color:#FF0000;
+  opacity: 0.5;
 }
 #arrownext{
   cursor:pointer;
   right:25%;
   position:absolute;
   background-color:#00FF00;
+  opacity: 0.5;
 }
 .decksection{
   display: inline-block; 
