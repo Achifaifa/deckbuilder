@@ -20,7 +20,7 @@ search_params={
 }
 carddb=[]
 filteredcards=[]
-search_page=1
+search_page=0
 
 document.getElementById('status').innerText="Load OK"
 
@@ -61,21 +61,21 @@ function drawdeck()
   var html="<center>"
   html+="<b id='deckname'>"+deck.deckname+"</b><br/>"
   html+="[Graph]<br/><br/>" //to-do
-  html+="<span id='decksection'>Ruler</span><br/>"+deck.ruler+"<br/>"
+  html+="<span class='decksection'>Ruler</span><br/>"+deck.ruler+"<br/>"
 
-  html+="<br/><span id='maindeck'>Main deck</span><br/>"
+  html+="<br/><span class='decksection' id='maindeck'>Main deck</span><br/>"
   for(var i=0;i<deck.main.length;i++){
     html+=deck.main[i]+"<br/>"
   }
 
-  html+="<br/><span id='stonedeck'>Stone deck</span><br/>"
+  html+="<br/><span class='decksection' id='stonedeck'>Stone deck</span><br/>"
   for(var i=0;i<deck.stone.length;i++){
     html+=deck.stone[i]+"<br/>"
   }
 
   var i=1
   while (deck["extra"+i]!=undefined){
-    html+="<br/><span class='extra' id='extra"+i+"'>"+deck["extra"+i+"name"]+"</span><br/>"
+    html+="<br/><span class='decksection' id='extra"+i+"'>"+deck["extra"+i+"name"]+"</span><br/>"
     for(var j=0;j<deck["extra"+i].length;j++){
       html+=deck["extra"+i][j]+"<br/>"
     }
@@ -83,7 +83,7 @@ function drawdeck()
   }
   html+="<br/><button id='addextra'>Add extra deck</button><br/>"
 
-  html+="<br/><span id='sideboard'>Sideboard</span><br/>"
+  html+="<br/><span class='decksection' id='sideboard'>Sideboard</span><br/>"
   for(var i=0;i<deck.side.length;i++){
     html+=deck.side[i]+"<br/>"
   }
@@ -198,8 +198,9 @@ function drawcards()
   tcards=cols*rows
 
   for(var i=0;i<tcards;i++){
-    //filteredcards[(page*tcards)+i].name
-    html+="<div id='card'><img src='./img/card-Back.png' width='"+cardwidth+"'></img></div>"
+    try{var cname=filteredcards[(search_page*tcards)+i].name}
+    catch{cname="--"}
+    html+="<div id='card'>"+cname+"<br/><img src='./img/card-Back.png' width='"+cardwidth+"'></img></div>"
   }
 
   //add page navigation buttons
@@ -217,18 +218,25 @@ function drawcards()
       deck.main.push(imgname)
       drawdeck()
     }
+
+    //use loop to fix width
+    dcards[i].style.width=cardwidth
+    dcards[i].style.height="300px"
   }
 
+  var maxpages=Math.ceil(filteredcards.length/tcards)
+  console.log(filteredcards)
   document.getElementById('arrowprev').onclick=function(){
     search_page-=1
-    if(search_page<1){search_page=1}
-    console.log("Page "+search_page)
+    if(search_page<0){search_page=0}
+    console.log("Page "+search_page+"/"+maxpages)
+    drawcards()
   }
   document.getElementById('arrownext').onclick=function(){
     search_page+=1
-    var maxpages=Math.ceil(filteredcards/tcards)
     if(search_page>maxpages){search_page=maxpages}
-    console.log("Page "+search_page)
+    console.log("Page "+search_page+"/"+maxpages)
+    drawcards()
   }
 }
 
@@ -360,7 +368,7 @@ function filtercards(){
   }
 
   filteredcards=costfcards
-  search_page=1 //reset page
+  search_page=0 //reset page
 
   console.log("Search params: ",search_params)
   console.log("Total cards filtered: "+filteredcards.length)

@@ -76,33 +76,12 @@
   position:absolute;
   background-color:#00FF00;
 }
-#decksection{
+.decksection{
   display: inline-block; 
-  width:100%;
+  width:90%;
   border:1px solid black;
   border-radius: 15px;
 }
-#maindeck{
-  display: inline-block; 
-  width:100%;
-  border:1px solid black;
-  border-radius: 15px;
-}
-#stonedeck{
-  display: inline-block; 
-  width:100%;
-  border:1px solid black;
-  border-radius: 15px;
-}
-#sideboard{
-  display: inline-block; 
-  width:100%;
-  border:1px solid black;
-  border-radius: 15px;
-}
-.extra{
-  display: inline-block; 
-  width:100%;
-  border:1px solid black;
-  border-radius: 15px;
+#deckname{
+  font-size: 20px;
 }
