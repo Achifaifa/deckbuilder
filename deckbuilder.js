@@ -6,7 +6,7 @@ search_source=0 //0: normal pool, 1: cardlist
 will_types=["light", "fire", "water", "wind", "dark", "void"]
 will_equivs={"light":"{W}", "fire":"{R}", "water":"{U}", "wind":"{G}", "dark":"{B}"}
 cost_types=["0", "1", "2", "3", "4", "5", "6", "7"]
-targets=["main","extra","side"] //target decks for most cards
+targets=["main","side"] //target decks for most cards
 cardtarget=""
 
 //Search parameters
@@ -68,7 +68,6 @@ for(var i=0;i<typedivs.length;i++){
   }
 }
 
-
 //Default deck
 deck={
   'deckname':'New deck',
@@ -110,10 +109,24 @@ function drawdeck()
 
   html+="<br/><span class='decksection' id='sideboard'>Sideboard</span><br/>"
   for(var i=0;i<deck.side.length;i++){
-    html+=deck.side[i]+"<br/>"
+    html+=deck.side[i].name+"<br/>"
   }
 
   document.getElementById('deck').innerHTML=html
+
+  //Edit section target colouring
+  if(cardtarget=="main"){
+    document.getElementById('maindeck').style.border="1px solid white"
+  }
+  else if(cardtarget=="side"){
+    document.getElementById('sideboard').style.border="1px solid white"
+  }
+  else if(cardtarget=="stone"){
+    document.getElementById('stonedeck').style.border="1px solid white"
+  }
+  else if(cardtarget=="ruler"){
+    document.getElementById('rulerdeck').style.border="1px solid white"
+  }
 
   //Deck name listener
   document.getElementById('deckname').onclick=function(){
@@ -250,7 +263,19 @@ function drawcards()
   //add listeners 
   var dcards=document.querySelectorAll('[id=card]')
   for (var i=0;i<dcards.length;i++){
-    //mouse wheel to choose target (to-do)
+    //mouse wheel to choose target
+    dcards[i].onwheel=function(e){
+      var tidx=targets.indexOf(cardtarget)
+      if(e.deltaY>0 && tidx!=-1){
+        cardtarget=targets[(tidx+targets.length-1)%targets.length]
+      }
+      else if(e.deltaY<0 && tidx!=-1){
+        cardtarget=targets[(tidx+targets.length+1)%targets.length]
+      }
+      drawdeck()
+    }
+
+    //Mouseover (target deck highlight)
     dcards[i].onmouseover=function(){
       var idx=this.childNodes[0].alt
       var card=filteredcards[idx]
@@ -281,7 +306,6 @@ function drawcards()
       var imgurl=this.getElementsByTagName('img')[0].src
       var imgname=imgurl.split('.')[0].split('/').slice(-1)[0]
       var index=this.getElementsByTagName('img')[0].alt
-      console.log(filteredcards[index].type)
       if(cardtarget!="ruler"){
         deck[cardtarget].push(filteredcards[index])
       }
