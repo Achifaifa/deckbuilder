@@ -95,7 +95,7 @@ function drawdeck()
 
   html+="<br/><span class='decksection' id='stonedeck'>Stone deck</span><br/>"
   for(var i=0;i<deck.stone.length;i++){
-    html+=deck.stone[i]+"<br/>"
+    html+=deck.stone[i].name+"<br/>"
   }
 
   var i=1
@@ -255,7 +255,7 @@ function drawcards()
       var idx=this.childNodes[0].alt
       var card=filteredcards[idx]
       var ctype=card.type
-      if(["Resonator","Chant","Addition","Regalia","Resonator (Stranger)"].indexOf(ctype)!=-1 || ctype.indexOf("Addition")!=-1){
+      if(["Resonator","Chant","Addition","Regalia"].some(z=>card.type.includes(z))){
         document.getElementById('maindeck').style.border="1px solid white"
         cardtarget="main"
       }
@@ -281,6 +281,7 @@ function drawcards()
       var imgurl=this.getElementsByTagName('img')[0].src
       var imgname=imgurl.split('.')[0].split('/').slice(-1)[0]
       var index=this.getElementsByTagName('img')[0].alt
+      console.log(filteredcards[index].type)
       if(cardtarget!="ruler"){
         deck[cardtarget].push(filteredcards[index])
       }
@@ -396,6 +397,11 @@ function reset_search(){
     'will':[0,0,0,0,0,0],
     'cost':[0,0,0,0,0,0,0],
     'types':[]
+  }
+  var typedivs=document.querySelectorAll('[id=cardtype]')
+  for(var i=0;i<typedivs.length;i++){
+    typedivs[i].style.backgroundColor="gray"
+    typedivs[i].style.border="1px solid black"
   }
   search_page=0
   filtercards()
