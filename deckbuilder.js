@@ -6,6 +6,9 @@ search_source=0 //0: normal pool, 1: cardlist
 will_types=["light", "fire", "water", "wind", "dark", "void"]
 will_equivs={"light":"{W}", "fire":"{R}", "water":"{U}", "wind":"{G}", "dark":"{B}"}
 cost_types=["0", "1", "2", "3", "4", "5", "6", "7"]
+targets=["main","extra","side"] //target decks for most cards
+cardtarget=""
+
 //Search parameters
 //will -> [Y,R,B,G,P,V]
 //cost -> [0,1,2,3,4,5,6,7]
@@ -49,7 +52,7 @@ document.getElementById('swapsources').onclick=function(){
 //Default deck
 deck={
   'deckname':'New deck',
-  'ruler':'none',
+  'ruler':{"name":"--"},
   'main':[],
   'stone':[],
   'side':[]
@@ -63,11 +66,11 @@ function drawdeck()
 
   html+="<canvas id='graph'></canvas><br/><br/>" //to-do
 
-  html+="<span class='decksection'>Ruler</span><br/>"+deck.ruler+"<br/>"
+  html+="<span class='decksection' id='rulerdeck'>Ruler</span><br/>"+deck.ruler.name+"<br/>"
 
   html+="<br/><span class='decksection' id='maindeck'>Main deck</span><br/>"
   for(var i=0;i<deck.main.length;i++){
-    html+=deck.main[i]+"<br/>"
+    html+=deck.main[i].name+"<br/>"
   }
 
   html+="<br/><span class='decksection' id='stonedeck'>Stone deck</span><br/>"
@@ -106,6 +109,16 @@ function drawdeck()
   }
 
   //Graph click listener
+
+  //Ruler click listener
+  document.getElementById('rulerdeck').onclick=function(){
+    document.getElementById('rulerdeck').onclick=''
+    document.getElementById('rulerdeck').innerHTML+="<button id='clear'>Clear</button>"
+    document.getElementById('clear').onclick=function(){
+      deck.ruler={"name":"--"}
+      drawdeck()
+    }
+  }
 
   //Main deck click listener
   document.getElementById('maindeck').onclick=function(){
@@ -202,9 +215,10 @@ function drawcards()
   tcards=cols*rows
 
   for(var i=0;i<tcards;i++){
-    try{var cname=filteredcards[(search_page*tcards)+i].name}
+    var index=(search_page*tcards)+i
+    try{var cname=filteredcards[index].name}
     catch{cname="--"}
-    html+="<div id='card'><img src='./img/card-Back.png' width='"+cardwidth+"'></img><br/><center>"+cname+"</div>"
+    html+="<div id='card'><img src='./img/card-Back.png' alt='"+index+"' width='"+cardwidth+"'></img><br/><center>"+cname+"</div>"
   }
 
   //add page navigation buttons
@@ -213,19 +227,55 @@ function drawcards()
 
   document.getElementById('cards').innerHTML=html
 
-  //add listeners (click to add to deck)
+  //add listeners 
   var dcards=document.querySelectorAll('[id=card]')
   for (var i=0;i<dcards.length;i++){
+    //mouse wheel to choose target (to-do)
+    dcards[i].onmouseover=function(){
+      var idx=this.childNodes[0].alt
+      var card=filteredcards[idx]
+      var ctype=card.type
+      console.log(ctype)
+      if(["Resonator","Chant","Addition","Regalia","Resonator (Stranger)"].indexOf(ctype)!=-1 || ctype.indexOf("Addition")!=-1){
+        document.getElementById('maindeck').style.border="1px solid white"
+        cardtarget="main"
+      }
+      if(ctype=="Ruler" || ctype=="J-Ruler"){
+        document.getElementById('rulerdeck').style.border="1px solid white"
+        cardtarget="ruler"
+      }
+      if(ctype=="Magic Stone"){
+        document.getElementById('stonedeck').style.border="1px solid white"
+        cardtarget="stone"
+      }
+    }
+    dcards[i].onmouseout=function(){
+      var sects=document.getElementsByClassName('decksection')
+      for(var i=0;i<sects.length;i++){
+        sects[i].style.border='1px solid black'
+        cardtarget=""
+      }
+    }
+
+    //click to add to deck
     dcards[i].onclick=function(){
       var imgurl=this.getElementsByTagName('img')[0].src
       var imgname=imgurl.split('.')[0].split('/').slice(-1)[0]
-      deck.main.push(imgname)
+      var index=this.getElementsByTagName('img')[0].alt
+      if(cardtarget!="ruler"){
+        deck[cardtarget].push(filteredcards[index])
+      }
+      else{
+        deck.ruler=filteredcards[index]
+      }
+      
       drawdeck()
     }
 
     //use loop to fix width
     dcards[i].style.width=cardwidth
     dcards[i].style.height="250px" //temporary extra space for text
+
   }
 
   var maxpages=Math.floor((filteredcards.length-1)/tcards)
@@ -297,7 +347,7 @@ function drawsearch(){
     search_expanded=!search_expanded
     if(search_expanded==1){
       document.getElementById('filters_extra').style.visibility="visible"
-      document.getElementById('filters_extra').style.height=150
+      document.getElementById('filters_extra').style.height=125
     }
     else{
       document.getElementById('filters_extra').style.visibility="collapse"
@@ -308,7 +358,6 @@ function drawsearch(){
   //reset search
   document.getElementById('resetopts').onclick=function(){
     reset_search()
-    drawsearch()
   }
 }
 
@@ -327,6 +376,10 @@ function reset_search(){
     'will':[0,0,0,0,0,0],
     'cost':[0,0,0,0,0,0,0]
   }
+  search_page=0
+  filtercards()
+  drawsearch()
+  drawcards()
 }
 
 function filtercards(){
@@ -370,6 +423,9 @@ function filtercards(){
     for(var i=0;i<willfcards.length;i++){
       var ccost=parseInt(willfcards[i].cost.replaceAll(/[^\d]/g, '') || 1)+(willfcards[i].cost.match(/\}/g)||[]).length-1
       if(scosts.indexOf(ccost)!=-1){
+        costfcards.push(willfcards[i])
+      }
+      else if(scosts.indexOf(7)!=-1 && ccost>7){
         costfcards.push(willfcards[i])
       }
     }

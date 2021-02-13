@@ -66,14 +66,14 @@
 }
 #arrowprev{
   cursor:pointer;
-  left:5%;
+  left:1%;
   position:absolute;
   background-color:#FF0000;
   opacity: 0.5;
 }
 #arrownext{
   cursor:pointer;
-  right:25%;
+  right:21%;
   position:absolute;
   background-color:#00FF00;
   opacity: 0.5;
