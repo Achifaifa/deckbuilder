@@ -60,7 +60,9 @@ function drawdeck()
 {
   var html="<center>"
   html+="<b id='deckname'>"+deck.deckname+"</b><br/>"
-  html+="[Graph]<br/><br/>" //to-do
+
+  html+="<canvas id='graph'></canvas><br/><br/>" //to-do
+
   html+="<span class='decksection'>Ruler</span><br/>"+deck.ruler+"<br/>"
 
   html+="<br/><span class='decksection' id='maindeck'>Main deck</span><br/>"
@@ -169,6 +171,8 @@ function drawdeck()
       drawdeck()
     }
   }
+
+  drawgraph()
 }
 
 //Draw card area
@@ -221,7 +225,7 @@ function drawcards()
 
     //use loop to fix width
     dcards[i].style.width=cardwidth
-    dcards[i].style.height="250px" //temporary
+    dcards[i].style.height="250px" //temporary extra space for text
   }
 
   var maxpages=Math.floor((filteredcards.length-1)/tcards)
@@ -252,6 +256,7 @@ function drawsearch(){
     html+="<img width='30px' id='icon' src='./icons/cost_"+i+".png'></img>"
   }
   html+="<img width='30px' id='searchopts' src='./icons/misc_more.png'></img>"
+  html+="<img width='30px' id='resetopts' src='./icons/misc_reset.png'></img>"
 
   document.getElementById('filters').innerHTML=html
 
@@ -268,12 +273,18 @@ function drawsearch(){
   //Icon attribute/cost toggles
   for(var i=0;i<ics.length;i++){
     ics[i].onclick=function(){
-      type=this.src.split("_")[1].split(".")[0]
+      var type=this.src.split("_")[1].split(".")[0]
       if(will_types.indexOf(type)!=-1){
         search_params.will[will_types.indexOf(type)]^=1
+        if(search_params.will[will_types.indexOf(type)]==1 && type!="void")
+        search_params.will[5]=0
       }
       else{
         search_params.cost[cost_types.indexOf(type)]^=1
+      }
+      //If clicked on void, reset everything else
+      if(search_params.will[5]==1){
+        search_params.will=[0,0,0,0,0,1]
       }
       drawsearch()
       filtercards()
@@ -292,7 +303,13 @@ function drawsearch(){
       document.getElementById('filters_extra').style.visibility="collapse"
       document.getElementById('filters_extra').style.height=0
     }
-  };
+  }
+
+  //reset search
+  document.getElementById('resetopts').onclick=function(){
+    reset_search()
+    drawsearch()
+  }
 }
 
 //initial card load
@@ -302,6 +319,13 @@ function loadcards(){
     for(var j=0;j<cards[i].sets.length;j++){
       carddb=carddb.concat(cards[i].sets[j].cards)
     }
+  }
+}
+
+function reset_search(){
+  search_params={
+    'will':[0,0,0,0,0,0],
+    'cost':[0,0,0,0,0,0,0]
   }
 }
 
@@ -315,7 +339,7 @@ function filtercards(){
   }
 
   //Filter by attribute (will cost colours)
-  //Attributes in DB are {W}{R}{U}{G}{B}
+  //Attributes in DB are {W}{R}{U}{G}{B} //to-do filter void
   var willfcards=[]
   var swills=[]
   for(var i=0;i<search_params.will.length;i++){
@@ -372,6 +396,32 @@ function filtercards(){
 
   console.log("Search params: ",search_params)
   console.log("Total cards filtered: "+filteredcards.length)
+}
+
+function drawgraph(){
+  var c=document.getElementById('graph');
+  c.style.background="#000"
+  var ctx=c.getContext("2d")
+  var cwidth=document.getElementById('deck').offsetWidth-40
+  ctx.canvas.width=cwidth
+  ctx.canvas.height=60
+  ctx.fillStyle="white"
+  
+  for(var i=0;i<8;i++){
+    ctx.strokeStyle="white"
+    ctx.fillText(i,20+(cwidth-28)*i/8,55)
+    ctx.beginPath()
+    ctx.moveTo(20+i*15,43.5)
+    ctx.lineTo(25+i*15,43.5)
+    ctx.stroke()
+    ctx.strokeStyle="green"
+    ctx.lineWidth=5
+    ctx.beginPath()
+    ctx.moveTo(22.5+i*15,42.5)
+    ctx.lineTo(22.5+i*15,42.5-(5*i))
+    ctx.stroke()
+  }
+  //to-do, actual plotting and variable width handling
 }
 
 //card area redraw on resize
