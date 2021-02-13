@@ -20,7 +20,8 @@ cardtarget=""
 search_params={
   'will':[0,0,0,0,0,0],
   'cost':[0,0,0,0,0,0,0],
-  'types':[]
+  'types':[],
+  'textc':""
 }
 carddb=[]
 filteredcards=[]
@@ -288,7 +289,7 @@ function drawcards()
         document.getElementById('rulerdeck').style.border="1px solid white"
         cardtarget="ruler"
       }
-      if(ctype=="Magic Stone"){
+      if(ctype.indexOf("Stone")!=-1){
         document.getElementById('stonedeck').style.border="1px solid white"
         cardtarget="stone"
       }
@@ -341,7 +342,7 @@ function drawcards()
 function drawsearch(){
 
   var html=""
-  html+="<input type='text' placeholder='search'></input>"
+  html+="<input type='text' id='searchbox' placeholder='search'></input>"
   for(var i=0;i<will_types.length;i++){
     html+="<img width='30px' id='icon' src='./icons/will_"+will_types[i]+".png'></img>"
   }
@@ -385,6 +386,14 @@ function drawsearch(){
     }
   }
 
+  //Text search
+  document.getElementById('searchbox').addEventListener('keydown',function(e){
+    if(e.key=="Enter"){
+      search_params.textc=document.getElementById('searchbox').value.toLowerCase()
+      filtercards()
+    }
+  })
+
   //Advanced search options menu
   document.getElementById('searchopts').onclick = function() {
     search_expanded=!search_expanded
@@ -420,7 +429,8 @@ function reset_search(){
   search_params={
     'will':[0,0,0,0,0,0],
     'cost':[0,0,0,0,0,0,0],
-    'types':[]
+    'types':[],
+    'textc':""
   }
   var typedivs=document.querySelectorAll('[id=cardtype]')
   for(var i=0;i<typedivs.length;i++){
@@ -484,23 +494,35 @@ function filtercards(){
   else{costfcards=willfcards}
 
   //Filter by text
-  if(search_params.textc!=undefined){
-
+  var textfcards=[]
+  if(search_params.textc.length>0){
+    for(var i=0;i<costfcards.length;i++){
+      var txtcheck=false
+      for(j=0;j<costfcards[i].abilities.length;j++){
+        if(costfcards[i].abilities[j].toLowerCase().includes(search_params.textc)){
+          txtcheck=true
+        }
+      }
+      if(costfcards[i].name.toLowerCase().includes(search_params.textc) || txtcheck){
+        textfcards.push(costfcards[i])
+      }
+    }
   }
+  else{textfcards=costfcards}
 
   //Filter by type
   typefcards=[]
   if(search_params.types.length>0){
-    for(var i=0;i<costfcards.length;i++){
+    for(var i=0;i<textfcards.length;i++){
       for(var j=0;j<search_params.types.length;j++){
-        if(costfcards[i].type.indexOf(search_params.types[j])!=-1){
-          typefcards.push(costfcards[i])
+        if(textfcards[i].type.indexOf(search_params.types[j])!=-1){
+          typefcards.push(textfcards[i])
           break
         }
       }
     }
   }
-  else{typefcards=costfcards}
+  else{typefcards=textfcards}
 
   //Filter by race
   if(search_params.races!=undefined){
