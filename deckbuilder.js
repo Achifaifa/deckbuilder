@@ -19,7 +19,8 @@ cardtarget=""
 //
 search_params={
   'will':[0,0,0,0,0,0],
-  'cost':[0,0,0,0,0,0,0]
+  'cost':[0,0,0,0,0,0,0],
+  'types':[]
 }
 carddb=[]
 filteredcards=[]
@@ -48,6 +49,25 @@ document.getElementById('swapsources').onclick=function(){
   }
   document.getElementById('sources').innerHTML=html
 }
+
+//Card type into search params
+var typedivs=document.querySelectorAll('[id=cardtype]')
+for(var i=0;i<typedivs.length;i++){
+  typedivs[i].onclick=function(){
+    if(search_params.types.indexOf(this.innerText)==-1){
+      search_params.types.push(this.innerText)
+      this.style.border='1px solid white'
+      this.style.backgroundColor="#CCC"
+    }
+    else{
+      this.style.border='1px solid black'
+      this.style.backgroundColor="gray"
+      search_params.types.splice(search_params.types.indexOf(this.innerText),1)
+    }
+    filtercards()
+  }
+}
+
 
 //Default deck
 deck={
@@ -235,7 +255,6 @@ function drawcards()
       var idx=this.childNodes[0].alt
       var card=filteredcards[idx]
       var ctype=card.type
-      console.log(ctype)
       if(["Resonator","Chant","Addition","Regalia","Resonator (Stranger)"].indexOf(ctype)!=-1 || ctype.indexOf("Addition")!=-1){
         document.getElementById('maindeck').style.border="1px solid white"
         cardtarget="main"
@@ -279,7 +298,6 @@ function drawcards()
   }
 
   var maxpages=Math.floor((filteredcards.length-1)/tcards)
-  console.log(filteredcards)
   document.getElementById('arrowprev').onclick=function(){
     search_page-=1
     if(search_page<0){search_page=0}
@@ -359,6 +377,8 @@ function drawsearch(){
   document.getElementById('resetopts').onclick=function(){
     reset_search()
   }
+
+
 }
 
 //initial card load
@@ -374,7 +394,8 @@ function loadcards(){
 function reset_search(){
   search_params={
     'will':[0,0,0,0,0,0],
-    'cost':[0,0,0,0,0,0,0]
+    'cost':[0,0,0,0,0,0,0],
+    'types':[]
   }
   search_page=0
   filtercards()
@@ -438,19 +459,27 @@ function filtercards(){
   }
 
   //Filter by type
-  if(search_params.types!=undefined){
-
+  typefcards=[]
+  if(search_params.types.length>0){
+    for(var i=0;i<costfcards.length;i++){
+      for(var j=0;j<search_params.types.length;j++){
+        if(costfcards[i].type.indexOf(search_params.types[j])!=-1){
+          typefcards.push(costfcards[i])
+          break
+        }
+      }
+    }
   }
+  else{typefcards=costfcards}
 
   //Filter by race
   if(search_params.races!=undefined){
 
   }
 
-  filteredcards=costfcards
+  filteredcards=typefcards
   search_page=0 //reset page
-
-  console.log("Search params: ",search_params)
+  drawcards()
   console.log("Total cards filtered: "+filteredcards.length)
 }
 
