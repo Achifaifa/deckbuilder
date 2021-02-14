@@ -1,3 +1,21 @@
+//TO-DO list (Priority order)
+//--------------------
+//Images (Pending on scraper)
+//Void filtering
+//Format filtering
+//Set search parameter
+//Race search
+//Export/import
+//Deck size limit (Warnings or hard blocks)
+//Banlist filtering
+//Functional graph
+//Full stats on graph click
+//Readable data overlay + toggle
+//Card zooming
+//Using cardlists
+//settings + local config storage
+//fix deleting extra deck causing other EDs to not show
+
 window.onload=function(){
 
 search_expanded=0
@@ -16,7 +34,6 @@ cardtarget=""
 //types -> [Resonator, chant, addition, ruler, etc]
 //sets -> [<set1>, <set2>, etc]
 //races -> [<race1>, <race2>, etc]
-//
 search_params={
   'will':[0,0,0,0,0,0],
   'cost':[0,0,0,0,0,0,0],
@@ -102,7 +119,7 @@ function drawdeck()
   while (deck["extra"+i]!=undefined){
     html+="<br/><span class='decksection' id='extra"+i+"'>"+deck["extra"+i+"name"]+"</span><br/>"
     for(var j=0;j<deck["extra"+i].length;j++){
-      html+=deck["extra"+i][j]+"<br/>"
+      html+=deck["extra"+i][j].name+"<br/>"
     }
     i+=1
   }
@@ -128,6 +145,9 @@ function drawdeck()
   else if(cardtarget=="ruler"){
     document.getElementById('rulerdeck').style.border="1px solid white"
   }
+  else if(cardtarget.includes("extra")){
+    document.getElementById(cardtarget).style.border="1px solid white"
+  }
 
   //Deck name listener
   document.getElementById('deckname').onclick=function(){
@@ -140,9 +160,7 @@ function drawdeck()
         drawdeck()
       }
     })
-  }
-
-  //Graph click listener
+  }  
 
   //Ruler click listener
   document.getElementById('rulerdeck').onclick=function(){
@@ -178,22 +196,27 @@ function drawdeck()
   var i=1
   while (deck["extra"+i]!=undefined){
     document.getElementById("extra"+i).onclick=function(){
-      document.getElementById("extra"+i).onclick=''
-      document.getElementById("extra"+i).innerHTML="<input type='text' id='namebox'><br/><button id='clear'>Clear</button><button id='delete'>Delete</button></input>"
-      document.getElementById('namebox').value=deck["extra"+i+"name"]
+      var ednum=this.id[5]
+      this.onclick=''
+      this.innerHTML="<input type='text' id='namebox'><br/><button id='clear'>Clear</button><button id='delete'>Delete</button></input>"
+      document.getElementById('namebox').value=deck["extra"+ednum+"name"]
       document.getElementById("namebox").addEventListener('keydown',function(e){
         if(e.key=="Enter"){
-          deck["extra"+i+"name"]=document.getElementById('namebox').value
+          var ednum=this.id[5]
+          deck["extra"+ednum+"name"]=document.getElementById('namebox').value
           drawdeck()
         }
       })
       document.getElementById('clear').onclick=function(){
-        deck["extra"+i]=[]
+        var ednum=this.parentNode.id[5]
+        deck["extra"+ednum]=[]
         drawdeck()
       }
       document.getElementById('delete').onclick=function(){
-        delete deck["extra"+i]
-        delete deck["extra"+i+"name"]
+        var ednum=this.parentNode.id[5]
+        delete deck["extra"+ednum]
+        delete deck["extra"+ednum+"name"]
+        targets.splice(ednum,1)
         drawdeck()
       }
     }
@@ -206,8 +229,10 @@ function drawdeck()
     while (deck["extra"+i]!=undefined){i+=1}
     deck["extra"+i]=[]
     deck["extra"+i+"name"]="Extra deck "+i
+    //Add extra deck to target list
+    targets.splice(i,0,"extra"+i)
     drawdeck()
-  };
+  }
 
   //Sideboard click listener
   document.getElementById('sideboard').onclick=function(){
@@ -250,9 +275,11 @@ function drawcards()
 
   for(var i=0;i<tcards;i++){
     var index=(search_page*tcards)+i
-    try{var cname=filteredcards[index].name}
-    catch{cname="--"}
-    html+="<div id='card'><img src='./img/card-Back.png' alt='"+index+"' width='"+cardwidth+"'></img><br/><center>"+cname+"</div>"
+    try{
+      var cname=filteredcards[index].name
+      html+="<div id='card'><img src='./img/card-Back.png' alt='"+index+"' width='"+cardwidth+"'></img><br/><center>"+cname+"</div>"
+    }
+    catch{}
   }
 
   //add page navigation buttons
@@ -268,10 +295,10 @@ function drawcards()
     dcards[i].onwheel=function(e){
       var tidx=targets.indexOf(cardtarget)
       if(e.deltaY>0 && tidx!=-1){
-        cardtarget=targets[(tidx+targets.length-1)%targets.length]
+        cardtarget=targets[(tidx+targets.length+1)%targets.length]
       }
       else if(e.deltaY<0 && tidx!=-1){
-        cardtarget=targets[(tidx+targets.length+1)%targets.length]
+        cardtarget=targets[(tidx+targets.length-1)%targets.length]
       }
       drawdeck()
     }
@@ -342,7 +369,7 @@ function drawcards()
 function drawsearch(){
 
   var html=""
-  html+="<input type='text' id='searchbox' placeholder='search'></input>"
+  html+="<input type='text' id='searchbox' placeholder='"+search_params.textc+"'></input>"
   for(var i=0;i<will_types.length;i++){
     html+="<img width='30px' id='icon' src='./icons/will_"+will_types[i]+".png'></img>"
   }
@@ -411,8 +438,6 @@ function drawsearch(){
   document.getElementById('resetopts').onclick=function(){
     reset_search()
   }
-
-
 }
 
 //initial card load
@@ -563,6 +588,7 @@ function drawgraph(){
 
 //card area redraw on resize
 window.addEventListener('resize',function(e){
+  drawdeck()
   drawcards()
 })
 
