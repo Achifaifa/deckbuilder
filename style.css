@@ -41,7 +41,6 @@
   padding-top:3px;
 }
 #cardtype{
-  background-color: gray;
   border-radius: 15px;
   padding-left:5px;
   padding-right: 5px;
@@ -102,4 +101,8 @@
   border:1px solid black;
   margin:2px;
   cursor:pointer;
+}
+button{
+  border-radius: 15px;
+  border: 1px solid black;
 }

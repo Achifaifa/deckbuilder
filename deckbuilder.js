@@ -1,18 +1,16 @@
 //TO-DO list (Priority order)
 //--------------------
 //Images (Pending on scraper)
-//Grouping in decklists
 //Format search
 //Set search
-//Race search
 //Export/import
 //settings + local config storage
 //fix deleting extra deck causing other EDs to not show
 //-----RELEASE HERE-------
 //Deck size limit
+//Card tops in decklist (Epand on hover)
 //Banlist filtering
 //Functional graph
-//Card tops in decklist (Epand on hover)
 //Full stats on graph click
 //Card zooming
 //Readable data overlay + toggle
@@ -25,12 +23,13 @@ window.onload=function(){
 search_expanded=0
 settings_expanded=0
 search_source=0 //0: normal pool, 1: cardlist
+//these can probably be optimized out
 will_types=["light", "fire", "water", "wind", "dark", "void"]
 will_equivs={"light":"{W}", "fire":"{R}", "water":"{U}", "wind":"{G}", "dark":"{B}"}
 cost_types=["0", "1", "2", "3", "4", "5", "6", "7"]
 targets=["main","side"] //target decks for most cards
-cardtarget=""
-races=[]
+cardtarget=""//subdeck where card will go
+races=[]//Array of all unique races, populated on data load
 
 //Search parameters
 //will -> [Y,R,B,G,P,V]
@@ -46,8 +45,8 @@ search_params={
   'textc':"",
   'races':[]
 }
-carddb=[]
-filteredcards=[]
+carddb=[]//All cards, loaded from database (Shouldn't change)
+filteredcards=[]//list of cards after applying filters
 search_page=0
 
 document.getElementById('status').innerText="Load OK"
@@ -75,27 +74,27 @@ document.getElementById('swapsources').onclick=function(){
 }
 
 //Adding searched race
-  document.getElementById('racesinput').addEventListener('keydown',function(e){
-    if(e.key=="Enter"){
-      var nrace=document.getElementById('racesinput').value
-      if(races.includes(nrace) && !search_params.races.includes(nrace)){
-        document.getElementById('rresults').innerHTML+="<span id='raceresult'>"+nrace+"</span>"
-        search_params.races.push(nrace)
-        document.getElementById('racesinput').value=""
-        filtercards()
+document.getElementById('racesinput').addEventListener('keydown',function(e){
+  if(e.key=="Enter"){
+    var nrace=document.getElementById('racesinput').value
+    if(races.includes(nrace) && !search_params.races.includes(nrace)){
+      document.getElementById('rresults').innerHTML+="<span id='raceresult'>"+nrace+"</span>"
+      search_params.races.push(nrace)
+      document.getElementById('racesinput').value=""
+      filtercards()
 
-        //Remove on click
-        var allr=document.querySelectorAll('[id=raceresult]')
-        for(var i=0;i<allr.length;i++){
-          allr[i].onclick=function(){
-            search_params.races.splice(search_params.races.indexOf(this.innerHTML),1)
-            this.outerHTML=""
-            filtercards()
-          }
+      //Remove on click
+      var allr=document.querySelectorAll('[id=raceresult]')
+      for(var i=0;i<allr.length;i++){
+        allr[i].onclick=function(){
+          search_params.races.splice(search_params.races.indexOf(this.innerHTML),1)
+          this.outerHTML=""
+          filtercards()
         }
       }
     }
-  })
+  }
+})
 
 //Card type into search params
 var typedivs=document.querySelectorAll('[id=cardtype]')
@@ -108,7 +107,7 @@ for(var i=0;i<typedivs.length;i++){
     }
     else{
       this.style.border='1px solid black'
-      this.style.backgroundColor="gray"
+      this.style.backgroundColor=""
       search_params.types.splice(search_params.types.indexOf(this.innerText),1)
     }
     filtercards()
@@ -136,19 +135,19 @@ function drawdeck()
 
   html+="<br/><span class='decksection' id='maindeck'>Main deck</span><br/>"
   for(var i=0;i<deck.main.length;i++){
-    html+=deck.main[i].name+"<br/>"
+    html+=deck.main[i].amount+"x "+deck.main[i].name+"<br/>"
   }
 
   html+="<br/><span class='decksection' id='stonedeck'>Stone deck</span><br/>"
   for(var i=0;i<deck.stone.length;i++){
-    html+=deck.stone[i].name+"<br/>"
+    html+=deck.stone[i].amount+"x "+deck.stone[i].name+"<br/>"
   }
 
   var i=1
   while (deck["extra"+i]!=undefined){
     html+="<br/><span class='decksection' id='extra"+i+"'>"+deck["extra"+i+"name"]+"</span><br/>"
     for(var j=0;j<deck["extra"+i].length;j++){
-      html+=deck["extra"+i][j].name+"<br/>"
+      html+=deck.main["extra"+i][j].amount+"x "+deck["extra"+i][j].name+"<br/>"
     }
     i+=1
   }
@@ -156,7 +155,7 @@ function drawdeck()
 
   html+="<br/><span class='decksection' id='sideboard'>Sideboard</span><br/>"
   for(var i=0;i<deck.side.length;i++){
-    html+=deck.side[i].name+"<br/>"
+    html+=deck.side[i].amount+"x "+deck.side[i].name+"<br/>"
   }
 
   document.getElementById('deck').innerHTML=html
@@ -364,7 +363,19 @@ function drawcards()
       var imgname=imgurl.split('.')[0].split('/').slice(-1)[0]
       var index=this.getElementsByTagName('img')[0].alt
       if(cardtarget!="ruler"){
-        deck[cardtarget].push(filteredcards[index])
+        var already=false
+        for(var i=0;i<deck[cardtarget].length;i++){
+          if(deck[cardtarget][i].id==filteredcards[index].id){
+            already=true
+            if(deck[cardtarget][i].amount<4){
+              deck[cardtarget][i].amount+=1
+            }
+          }
+        }
+        if(!already){
+          deck[cardtarget].push(filteredcards[index])
+          deck[cardtarget][deck[cardtarget].length-1].amount=1
+        }
       }
       else{
         deck.ruler=filteredcards[index]
