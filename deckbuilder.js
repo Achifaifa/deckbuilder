@@ -147,7 +147,7 @@ function drawdeck()
   while (deck["extra"+i]!=undefined){
     html+="<br/><span class='decksection' id='extra"+i+"'>"+deck["extra"+i+"name"]+"</span><br/>"
     for(var j=0;j<deck["extra"+i].length;j++){
-      html+=deck.main["extra"+i][j].amount+"x "+deck["extra"+i][j].name+"<br/>"
+      html+=deck["extra"+i][j].amount+"x "+deck["extra"+i][j].name+"<br/>"
     }
     i+=1
   }
@@ -373,7 +373,8 @@ function drawcards()
           }
         }
         if(!already){
-          deck[cardtarget].push(filteredcards[index])
+          //copy object to prevent extra deck amount
+          deck[cardtarget].push(JSON.parse(JSON.stringify(filteredcards[index])))
           deck[cardtarget][deck[cardtarget].length-1].amount=1
         }
       }
