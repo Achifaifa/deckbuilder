@@ -1,7 +1,6 @@
 //TO-DO list (Priority order)
 //--------------------
 //Images (Pending on scraper)
-//Void filtering
 //Format filtering
 //Set search parameter
 //Race search
@@ -10,11 +9,13 @@
 //Banlist filtering
 //Functional graph
 //Full stats on graph click
-//Readable data overlay + toggle
 //Card zooming
+//Readable data overlay + toggle
 //Using cardlists
 //settings + local config storage
 //fix deleting extra deck causing other EDs to not show
+//Improve search to O(n)
+//Accessibility stuff
 
 window.onload=function(){
 
@@ -478,17 +479,30 @@ function filtercards(){
   }
 
   //Filter by attribute (will cost colours)
-  //Attributes in DB are {W}{R}{U}{G}{B} //to-do filter void
+  //Attributes in DB are {W}{R}{U}{G}{B}
   var willfcards=[]
   var swills=[]
-  for(var i=0;i<search_params.will.length;i++){
+  for(var i=0;i<search_params.will.length-1;i++){
     if(search_params.will[i]==1){
       swills.push(will_equivs[will_types[i]])
     }
   }
-  if(swills.length>0){
+  //Search if void will is off
+  if(search_params.will[5]==0 && swills.length>0){
+    console.log(swills)
+    if(swills.length>0){
+      for(var i=0;i<setfcards.length;i++){
+        if(swills.every(z=>setfcards[i].cost.includes(z))){
+          willfcards.push(setfcards[i])
+        }
+      }
+    }
+  }
+  //Search if void will is on
+  else if(search_params.will[5]==1){
     for(var i=0;i<setfcards.length;i++){
-      if(swills.every(z=>setfcards[i].cost.includes(z))){
+      //one bracket and at least one number
+      if((setfcards[i].cost.match(/\{/g)||[]).length==1 && (setfcards[i].cost.match(/\d/g)||[]).length>0){
         willfcards.push(setfcards[i])
       }
     }
