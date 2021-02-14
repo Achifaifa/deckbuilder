@@ -95,3 +95,11 @@
   padding-left:5px;
   padding-right:5px;
 }
+#raceresult{
+  border-radius: 15px;
+  padding-left:5px;
+  padding-right: 5px;
+  border:1px solid black;
+  margin:2px;
+  cursor:pointer;
+}

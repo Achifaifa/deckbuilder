@@ -1,20 +1,23 @@
 //TO-DO list (Priority order)
 //--------------------
 //Images (Pending on scraper)
-//Format filtering
-//Set search parameter
+//Grouping in decklists
+//Format search
+//Set search
 //Race search
 //Export/import
-//Deck size limit (Warnings or hard blocks)
+//settings + local config storage
+//fix deleting extra deck causing other EDs to not show
+//-----RELEASE HERE-------
+//Deck size limit
 //Banlist filtering
 //Functional graph
+//Card tops in decklist (Epand on hover)
 //Full stats on graph click
 //Card zooming
 //Readable data overlay + toggle
-//Using cardlists
-//settings + local config storage
-//fix deleting extra deck causing other EDs to not show
 //Improve search to O(n)
+//Import cardlist from booster generator
 //Accessibility stuff
 
 window.onload=function(){
@@ -27,6 +30,7 @@ will_equivs={"light":"{W}", "fire":"{R}", "water":"{U}", "wind":"{G}", "dark":"{
 cost_types=["0", "1", "2", "3", "4", "5", "6", "7"]
 targets=["main","side"] //target decks for most cards
 cardtarget=""
+races=[]
 
 //Search parameters
 //will -> [Y,R,B,G,P,V]
@@ -39,7 +43,8 @@ search_params={
   'will':[0,0,0,0,0,0],
   'cost':[0,0,0,0,0,0,0],
   'types':[],
-  'textc':""
+  'textc':"",
+  'races':[]
 }
 carddb=[]
 filteredcards=[]
@@ -68,6 +73,29 @@ document.getElementById('swapsources').onclick=function(){
   }
   document.getElementById('sources').innerHTML=html
 }
+
+//Adding searched race
+  document.getElementById('racesinput').addEventListener('keydown',function(e){
+    if(e.key=="Enter"){
+      var nrace=document.getElementById('racesinput').value
+      if(races.includes(nrace) && !search_params.races.includes(nrace)){
+        document.getElementById('rresults').innerHTML+="<span id='raceresult'>"+nrace+"</span>"
+        search_params.races.push(nrace)
+        document.getElementById('racesinput').value=""
+        filtercards()
+
+        //Remove on click
+        var allr=document.querySelectorAll('[id=raceresult]')
+        for(var i=0;i<allr.length;i++){
+          allr[i].onclick=function(){
+            search_params.races.splice(search_params.races.indexOf(this.innerHTML),1)
+            this.outerHTML=""
+            filtercards()
+          }
+        }
+      }
+    }
+  })
 
 //Card type into search params
 var typedivs=document.querySelectorAll('[id=cardtype]')
@@ -203,7 +231,7 @@ function drawdeck()
       document.getElementById('namebox').value=deck["extra"+ednum+"name"]
       document.getElementById("namebox").addEventListener('keydown',function(e){
         if(e.key=="Enter"){
-          var ednum=this.id[5]
+          var ednum=this.parentNode.id[5]
           deck["extra"+ednum+"name"]=document.getElementById('namebox').value
           drawdeck()
         }
@@ -443,10 +471,22 @@ function drawsearch(){
 
 //initial card load
 function loadcards(){
+  //load card list
   cards=cards.fow.clusters
   for(var i=0;i<cards.length;i++){
     for(var j=0;j<cards[i].sets.length;j++){
       carddb=carddb.concat(cards[i].sets[j].cards)
+    }
+  }
+  //populate races array
+  races=[]
+  for(var i=0;i<carddb.length;i++){
+    for(j=0;j<carddb[i].race.length;j++){
+      var race=carddb[i].race[j]
+      if(!races.includes(race) && race.length>0){
+        races.push(race)
+        document.getElementById('raceslist').innerHTML+="<option value='"+race+"'/>"
+      }
     }
   }
 }
@@ -456,6 +496,7 @@ function reset_search(){
     'will':[0,0,0,0,0,0],
     'cost':[0,0,0,0,0,0,0],
     'types':[],
+    'races':[],
     'textc':""
   }
   var typedivs=document.querySelectorAll('[id=cardtype]')
@@ -564,11 +605,20 @@ function filtercards(){
   else{typefcards=textfcards}
 
   //Filter by race
-  if(search_params.races!=undefined){
-
+  racefcards=[]
+  if(search_params.races.length>0){
+    for(var i=0;i<typefcards.length;i++){
+      for(var j=0;j<search_params.races.length;j++){
+        if(typefcards[i].race.includes(search_params.races[j])){
+          racefcards.push(typefcards[i])
+          break
+        }
+      }
+    }
   }
+  else{racefcards=typefcards}
 
-  filteredcards=typefcards
+  filteredcards=racefcards
   search_page=0 //reset page
   drawcards()
   console.log("Total cards filtered: "+filteredcards.length)
