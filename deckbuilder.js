@@ -1,12 +1,12 @@
 //TO-DO list (Priority order)
-//--------------------
+//
 //Images (Pending on scraper)
-//Format search
-//Set search
 //Export/import
 //settings + local config storage
-//fix deleting extra deck causing other EDs to not show
+//
 //-----RELEASE HERE-------
+//
+//Format search
 //Deck size limit
 //Card tops in decklist (Epand on hover)
 //Banlist filtering
@@ -16,6 +16,8 @@
 //Readable data overlay + toggle
 //Improve search to O(n)
 //Import cardlist from booster generator
+//bugs when renaming several decks simultaneously
+//bugs when deleting extra deck causing other EDs to not show
 //Accessibility stuff
 
 window.onload=function(){
@@ -30,6 +32,7 @@ cost_types=["0", "1", "2", "3", "4", "5", "6", "7"]
 targets=["main","side"] //target decks for most cards
 cardtarget=""//subdeck where card will go
 races=[]//Array of all unique races, populated on data load
+sets={}//Array of set codes, populated on data load
 
 //Search parameters
 //will -> [Y,R,B,G,P,V]
@@ -43,35 +46,36 @@ search_params={
   'cost':[0,0,0,0,0,0,0],
   'types':[],
   'textc':"",
-  'races':[]
+  'races':[],
+  'sets':[]
 }
 carddb=[]//All cards, loaded from database (Shouldn't change)
 filteredcards=[]//list of cards after applying filters
 search_page=0
 
-document.getElementById('status').innerText="Load OK"
-
 //Settings menu
 document.getElementById('preferences').onclick = function() {
   settings_expanded=!settings_expanded
-  document.getElementById('toolbar').style.height=24+(500*settings_expanded)
+  document.getElementById('toolbar').style.height=20+(500*settings_expanded)
 };
 
 //Change from card pool to cardlist
-document.getElementById('swapsources').onclick=function(){
-  search_source=!search_source
-  if(search_source==1){
-    var html="<button>Import cardlist</button>"
-    document.getElementById('swapsources').innerText="Use card pool"    
-  }
-  else{
-    var html="Format <select><option>Wanderer</option></select>\
-              sets <input type='text'></input>\
-              Banlist <select><option>None</option></select>"
-    document.getElementById('swapsources').innerText="Use cardlist"      
-  }
-  document.getElementById('sources').innerHTML=html
-}
+// document.getElementById('swapsources').onclick=function(){
+//   reset_search()
+//   search_source=!search_source
+//   if(search_source==1){
+//     var html="<button>Import cardlist</button>"
+//     document.getElementById('swapsources').innerText="Use card pool"    
+//   }
+//   else{
+//     var html="Format <select><option>Wanderer</option></select>\
+//               sets <input type='text' list='setslist' id='setsinput'></input>\
+//               Banlist <select><option>None</option></select><br/>\
+//               <span id='sresults'></span>"
+//     document.getElementById('swapsources').innerText="Use cardlist"      
+//   }
+//   document.getElementById('sources').innerHTML=html
+// }
 
 //Adding searched race
 document.getElementById('racesinput').addEventListener('keydown',function(e){
@@ -93,6 +97,29 @@ document.getElementById('racesinput').addEventListener('keydown',function(e){
         }
       }
     }
+  }
+})
+
+//Adding searched set
+document.getElementById('setsinput').addEventListener('keydown',function(e){
+  if(e.key=="Enter"){
+    var nset=document.getElementById('setsinput').value
+    console.log(nset)
+    if(Object.keys(sets).includes(nset) && !search_params.sets.includes(nset)){
+      document.getElementById('sresults').innerHTML+="<span id='setresult'>"+nset+"</span>"
+      search_params.sets.push(nset)
+      document.getElementById('setsinput').value=""
+      filtercards()
+
+      //Remove on click
+      var allr=document.querySelectorAll('[id=setresult]')
+      for(var i=0;i<allr.length;i++){
+        allr[i].onclick=function(){
+          search_params.sets.splice(search_params.sets.indexOf(this.innerHTML),1)
+          this.outerHTML=""
+          filtercards()
+        }
+      }    }
   }
 })
 
@@ -467,7 +494,7 @@ function drawsearch(){
     search_expanded=!search_expanded
     if(search_expanded==1){
       document.getElementById('filters_extra').style.visibility="visible"
-      document.getElementById('filters_extra').style.height=125
+      document.getElementById('filters_extra').style.height=150
     }
     else{
       document.getElementById('filters_extra').style.visibility="collapse"
@@ -487,6 +514,10 @@ function loadcards(){
   cards=cards.fow.clusters
   for(var i=0;i<cards.length;i++){
     for(var j=0;j<cards[i].sets.length;j++){
+      var setcode=cards[i].sets[j].code
+      var setname=cards[i].sets[j].name
+      sets[setname]=setcode
+      document.getElementById('setslist').innerHTML+="<option value='"+setname+"'/>"
       carddb=carddb.concat(cards[i].sets[j].cards)
     }
   }
@@ -509,7 +540,8 @@ function reset_search(){
     'cost':[0,0,0,0,0,0,0],
     'types':[],
     'races':[],
-    'textc':""
+    'textc':"",
+    'sets':{}
   }
   var typedivs=document.querySelectorAll('[id=cardtype]')
   for(var i=0;i<typedivs.length;i++){
@@ -524,12 +556,19 @@ function reset_search(){
 
 function filtercards(){
 
-  
-  setfcards=carddb
-  //Filter by set (Has to be done first)
-  if(search_params.sets!=undefined){
-
+  //Filter by set
+  setfcards=[]
+  if(search_params.sets.length>0){
+    for(var i=0;i<carddb.length;i++){
+      for(j=0;j<search_params.sets.length;j++){
+        if(carddb[i].id.split('-')[0]==sets[search_params.sets[j]]){
+          setfcards.push(carddb[i])
+          break
+        }
+      }
+    }
   }
+  else{setfcards=carddb}
 
   //Filter by attribute (will cost colours)
   //Attributes in DB are {W}{R}{U}{G}{B}
@@ -637,7 +676,7 @@ function filtercards(){
 }
 
 function drawgraph(){
-  var c=document.getElementById('graph');
+  var c=document.getElementById('graph')
   c.style.background="#000"
   var ctx=c.getContext("2d")
   var cwidth=document.getElementById('deck').offsetWidth-40

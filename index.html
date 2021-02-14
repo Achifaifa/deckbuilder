@@ -3,13 +3,15 @@
 <link rel='stylesheet' href='style.css'>
 <script src='./data/cards.js'></script>
 <script src='deckbuilder.js'></script>
+<datalist id='setslist'></datalist>
+<datalist id='raceslist'></datalist>
 
 <div id='container'>
 
   <!--top div-->
   <div id='toolbar'>
-  <div id='status' style="display:inline">status</div> 
-  <button id='preferences' style="float:right">settings</button>
+  <span id='status' style="display:inline"></span> 
+  <button id='preferences' style="float:right;margin-right:5px">settings</button>
   <button style="float:right">load</button>
   <button style="float:right">save</button>
   </div>
@@ -18,13 +20,14 @@
   <div id='filters'>
   </div>
   <div id='filters_extra'><center>
-    <span id="sources">
+    <div id="sources">
       Format <select><option>None</option></select>
-      sets <input type='text'></input>
-      Banlist <select><option>None</option></select>
-    </span>
-    <button id="swapsources">Use cardlist</button>
-    <br/><br/>
+      sets <input type='text' list='setslist' id='setsinput'></input>
+      Banlist <select><option>None</option></select><br/>
+      <span id='sresults'></span>
+    </div>
+<!--     <button id="swapsources">Use cardlist</button>
+ -->    <br/><br/>
     <span id="cardtype">Resonator</span>
     <span id="cardtype">Chant</span>
     <span id="cardtype">Addition</span>
@@ -35,8 +38,7 @@
     
       Race: <span id='rresults'></span>
       <input type='text' id='racesinput' list='raceslist'></input>
-      <datalist id='raceslist'></datalist>
-    
+      
   </div>
   
 
