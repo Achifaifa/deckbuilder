@@ -6,6 +6,7 @@
 <datalist id='setslist'></datalist>
 <datalist id='raceslist'></datalist>
 
+<body style='background-color:#191919'>
 <div id='container'>
 
   <!--top div-->
@@ -21,13 +22,13 @@
   </div>
   <div id='filters_extra'><center>
     <div id="sources">
-      Format <select><option>None</option></select>
+      Format <select id='formatselect'></select>
       sets <input type='text' list='setslist' id='setsinput'></input>
       Banlist <select><option>None</option></select><br/>
       <span id='sresults'></span>
     </div>
-<!--     <button id="swapsources">Use cardlist</button>
- -->    <br/><br/>
+    <!--<button id="swapsources">Use cardlist</button><br/>--> 
+    <br/>
     <span id="cardtype">Resonator</span>
     <span id="cardtype">Chant</span>
     <span id="cardtype">Addition</span>

@@ -1,12 +1,13 @@
 //TO-DO list (Priority order)
 //
+//-----Minimum stuff-------
+//
 //Images (Pending on scraper)
 //Export/import
 //settings + local config storage
 //
-//-----RELEASE HERE-------
+//-----Extra stuff-------
 //
-//Format search
 //Deck size limit
 //Card tops in decklist (Epand on hover)
 //Banlist filtering
@@ -24,6 +25,7 @@ window.onload=function(){
 
 search_expanded=0
 settings_expanded=0
+overlay=1 //readable text overlay on cards
 search_source=0 //0: normal pool, 1: cardlist
 //these can probably be optimized out
 will_types=["light", "fire", "water", "wind", "dark", "void"]
@@ -32,7 +34,78 @@ cost_types=["0", "1", "2", "3", "4", "5", "6", "7"]
 targets=["main","side"] //target decks for most cards
 cardtarget=""//subdeck where card will go
 races=[]//Array of all unique races, populated on data load
-sets={}//Array of set codes, populated on data load
+sets={}//Dictionary of set names and codes, populated on data load
+formats={//Dictionary of formats and sets allowed in them
+  "--":[],//empty set to reset formats
+  "New Frontiers":[
+    "Alice Origin",
+    "Alice Origin II",
+    "Alice Origin III",
+    "Prologue of Attoractia",
+    "The Epic of the Dragon Lord",
+    "Alice Origin Promos",
+    "Alice Origin Starter Decks - Faria/Melgis",
+    "SDAO2 - Alice Origin Starter Decks - Valentina/Pricia",
+    "Starter Deck GHOST IN THE SHELL SAC_2045",
+    "GHOST IN THE SHELL SAC_2045",
+  ],
+  "Origin":[//All cards
+    "Advent of the Demon King",
+    "Alice Origin",
+    "Alice Origin II",
+    "Alice Origin III",
+    "Alice Origin Promos",
+    "Alice Origin Starter Decks - Faria/Melgis",
+    "Ancient Nights",
+    "Awakening of the Ancients",
+    "Battle for Attoractia",
+    "Curse of the Frozen Casket",
+    "Echoes of the New World",
+    "Faria, the Sacred Queen/Melgis, the Flame King",
+    "GHOST IN THE SHELL SAC_2045",
+    "Legacy Lost",
+    "New Dawn Rises",
+    "Prologue of Attoractia",
+    "Return of the Dragon Emperor",
+    "SDAO2 - Alice Origin Starter Decks - Valentina/Pricia",
+    "Starter",
+    "Starter - Below the Waves",
+    "Starter - Blood of Dragons",
+    "Starter - Children of the Night",
+    "Starter - Elemental Surge",
+    "Starter - Fairy Tale Force",
+    "Starter - King of the Mountain",
+    "Starter - Malefic Ice",
+    "Starter - Rage of R'lyeh",
+    "Starter - Swarming Elves",
+    "Starter - The Lost Tomes",
+    "Starter - Vampiric Hunger",
+    "Starter Deck GHOST IN THE SHELL SAC_2045",
+    "Starter Deck Valhalla - Darkness",
+    "Starter Deck Valhalla - Fire",
+    "Starter Deck Valhalla - Light",
+    "Starter Deck Valhalla - Water",
+    "Starter Deck Valhalla - Wind",
+    "The Castle of Heaven and the Two Towers",
+    "The Crimson Moon Fairy Tale",
+    "The Dawn of Valhalla",
+    "The Decisive Battle of Valhalla",
+    "The Epic of the Dragon Lord",
+    "The Millennia of Ages",
+    "The Moon Priestess Returns",
+    "The Moonlit Saviour",
+    "The Seven Kings of the Land",
+    "The Shaft of Light of Valhalla",
+    "The Strangers of New Valhalla",
+    "The Time-Spinning Witch",
+    "The Twilight Wanderer",
+    "The War of Valhalla",
+    "Vingolf 2 - Valkyria Chronicles",
+    "Vingolf 3 - Ruler All Stars",
+    "Vingolf series - Engage Series",
+    "Winds of the Ominous Moon",
+  ]
+}
 
 //Search parameters
 //will -> [Y,R,B,G,P,V]
@@ -53,10 +126,20 @@ carddb=[]//All cards, loaded from database (Shouldn't change)
 filteredcards=[]//list of cards after applying filters
 search_page=0
 
+//Populate formats list
+Object.keys(formats).forEach(a=>document.getElementById('formatselect').innerHTML+="<option value='"+a+"'>"+a+"</option>")
+
+//Update format list
+document.getElementById('formatselect').onchange=function(){
+  search_params.sets=formats[this.value]
+  drawsearch()
+  filtercards()
+}
+
 //Settings menu
 document.getElementById('preferences').onclick = function() {
   settings_expanded=!settings_expanded
-  document.getElementById('toolbar').style.height=20+(500*settings_expanded)
+  document.getElementById('toolbar').style.height=20+(100*settings_expanded)
 };
 
 //Change from card pool to cardlist
@@ -104,9 +187,8 @@ document.getElementById('racesinput').addEventListener('keydown',function(e){
 document.getElementById('setsinput').addEventListener('keydown',function(e){
   if(e.key=="Enter"){
     var nset=document.getElementById('setsinput').value
-    console.log(nset)
     if(Object.keys(sets).includes(nset) && !search_params.sets.includes(nset)){
-      document.getElementById('sresults').innerHTML+="<span id='setresult'>"+nset+"</span>"
+      document.getElementById('sresults').innerHTML+="<div id='setresult'>"+nset+"</div>"
       search_params.sets.push(nset)
       document.getElementById('setsinput').value=""
       filtercards()
@@ -119,7 +201,8 @@ document.getElementById('setsinput').addEventListener('keydown',function(e){
           this.outerHTML=""
           filtercards()
         }
-      }    }
+      }    
+    }
   }
 })
 
@@ -315,6 +398,7 @@ function drawcards()
     cardwidth=(document.getElementById('cards').offsetWidth/cols)
   }
   //get visible size of cards div (https://stackoverflow.com/questions/12868287/get-height-of-non-overflowed-portion-of-div)
+  //Doesn't even work but it's close enough
   var offs=0
   var n=document.getElementById('cards')
   while (n.offsetParent && n.offsetParent.id != "wrapper"){
@@ -331,8 +415,9 @@ function drawcards()
   for(var i=0;i<tcards;i++){
     var index=(search_page*tcards)+i
     try{
-      var cname=filteredcards[index].name
-      html+="<div id='card'><img src='./img/card-Back.png' alt='"+index+"' width='"+cardwidth+"'></img><br/><center>"+cname+"</div>"
+      html+="<div class='card' id='"+index+"' style='background-image:url(./img/card-Back.png);'><br/>"
+      if(overlay==1){html+="<center>"+filteredcards[index].cost+"<br/>"+filteredcards[index].name+"<br/>"}
+      html+="</div>"
     }
     catch{}
   }
@@ -344,7 +429,7 @@ function drawcards()
   document.getElementById('cards').innerHTML=html
 
   //add listeners 
-  var dcards=document.querySelectorAll('[id=card]')
+  var dcards=document.getElementsByClassName('card')
   for (var i=0;i<dcards.length;i++){
     //mouse wheel to choose target
     dcards[i].onwheel=function(e){
@@ -360,8 +445,7 @@ function drawcards()
 
     //Mouseover (target deck highlight)
     dcards[i].onmouseover=function(){
-      var idx=this.childNodes[0].alt
-      var card=filteredcards[idx]
+      var card=filteredcards[this.id]
       var ctype=card.type
       if(["Resonator","Chant","Addition","Regalia"].some(z=>card.type.includes(z))){
         document.getElementById('maindeck').style.border="1px solid white"
@@ -386,9 +470,9 @@ function drawcards()
 
     //click to add to deck
     dcards[i].onclick=function(){
-      var imgurl=this.getElementsByTagName('img')[0].src
-      var imgname=imgurl.split('.')[0].split('/').slice(-1)[0]
-      var index=this.getElementsByTagName('img')[0].alt
+      var imgurl=this.style.backgroundImage
+      var imgname=imgurl.split('"')[1]
+      var index=this.id
       if(cardtarget!="ruler"){
         var already=false
         for(var i=0;i<deck[cardtarget].length;i++){
@@ -414,7 +498,7 @@ function drawcards()
 
     //use loop to fix width
     dcards[i].style.width=cardwidth
-    dcards[i].style.height="250px" //temporary extra space for text
+    dcards[i].style.height=cardwidth*1.41
 
   }
 
@@ -455,7 +539,6 @@ function drawsearch(){
   for(var i=0;i<ics.length;i++){
     ics[i].style.opacity=0.4+(0.6*tps[i])
   }
-
 
   //add listeners
 
@@ -581,7 +664,6 @@ function filtercards(){
   }
   //Search if void will is off
   if(search_params.will[5]==0 && swills.length>0){
-    console.log(swills)
     if(swills.length>0){
       for(var i=0;i<setfcards.length;i++){
         if(swills.every(z=>setfcards[i].cost.includes(z))){
