@@ -13,8 +13,37 @@
   <div id='toolbar'>
   <span id='status' style="display:inline"></span> 
   <button id='preferences' style="float:right;margin-right:5px">settings</button>
-  <button style="float:right">load</button>
-  <button style="float:right">save</button>
+  <button style="float:right" id='savedeckbutton'>save</button>
+    <div id='toolbar_extra'>
+      <center>
+      <div class='optiongroup'>
+        Overlay:
+        <select id='overlayoption'>
+          <option value="0">off</option>
+          <option value="1">on</option>
+        </select>
+        Images:
+        <select id='imageoption'>
+          <option value="1">on</option>
+          <option value="0">off</option>
+        </select>
+      </div>
+      <div class='optiongroup'>
+        <select id='saveformat'>
+          <option value='ut'>untap</option>
+          <option value='json'>JSON</option>
+          <option value='txt'>text</option>
+        </select>
+        <button id='dlbutton'>download</button>
+        <button id='copybutton'>copy</button>
+      </div>
+      <div class='optiongroup'>
+        <select id='saveddecks'>
+        </select>
+        <button id='loadbutton'>load</button>
+        <button id='deletebutton'>delete</button>
+      </div>
+    </div>
   </div>
 
   <!--filter div-->

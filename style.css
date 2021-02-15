@@ -11,7 +11,9 @@
   width:100%;
 }
 #toolbar_extra{
-
+  margin-top: 20px;
+  visibility: collapse;
+  height:0;
 }
 #filters{
   padding:3px;
@@ -50,6 +52,15 @@
 }
 #sources{
   width:50%;
+  border-radius: 15px;
+  padding-left:5px;
+  padding-right: 5px;
+  border:1px solid black;
+  margin:2px;
+  padding:4px;
+}
+.optiongroup{
+  width: 25%;
   border-radius: 15px;
   padding-left:5px;
   padding-right: 5px;

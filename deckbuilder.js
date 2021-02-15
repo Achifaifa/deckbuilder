@@ -3,8 +3,6 @@
 //-----Minimum stuff-------
 //
 //Images (Pending on scraper)
-//Export/import
-//settings + local config storage
 //
 //-----Extra stuff-------
 //
@@ -26,6 +24,7 @@ window.onload=function(){
 search_expanded=0
 settings_expanded=0
 overlay=1 //readable text overlay on cards
+imageloads=1//image loading. Disabling it saves bandwidth
 search_source=0 //0: normal pool, 1: cardlist
 //these can probably be optimized out
 will_types=["light", "fire", "water", "wind", "dark", "void"]
@@ -126,6 +125,15 @@ carddb=[]//All cards, loaded from database (Shouldn't change)
 filteredcards=[]//list of cards after applying filters
 search_page=0
 
+//Default deck
+deck={
+  'deckname':'New deck',
+  'ruler':{"name":"--"},
+  'main':[],
+  'stone':[],
+  'side':[]
+}
+
 //Populate formats list
 Object.keys(formats).forEach(a=>document.getElementById('formatselect').innerHTML+="<option value='"+a+"'>"+a+"</option>")
 
@@ -136,11 +144,75 @@ document.getElementById('formatselect').onchange=function(){
   filtercards()
 }
 
+//Overlay option
+document.getElementById('overlayoption').onchange=function(){
+  overlay=this.value
+  drawcards()
+}
+
+//Image loading option
+document.getElementById('imageoption').onchange=function(){
+  search_params.sets=formats[this.value]
+  imageloads=this.value
+  drawcards()
+}
+
+//Download button (download deck as text file)
+//This shit is cursed
+document.getElementById('dlbutton').onclick=function(){
+  var dname=document.getElementById('deckname').innerText+".txt"
+  var a=document.createElement('a')
+  a.setAttribute('href','data:text/plain;charset=utf-8,'+encodeURIComponent(decktotxt()))
+  a.setAttribute('download',dname)
+  a.style.display='none'
+  document.body.appendChild(a)
+  a.click();
+  document.body.removeChild(a)
+}
+
+//Copy button (Copy to clipboard)
+document.getElementById('copybutton').onclick=function(){
+  navigator.clipboard.writeText(decktotxt())
+}
+
 //Settings menu
-document.getElementById('preferences').onclick = function() {
-  settings_expanded=!settings_expanded
+document.getElementById('preferences').onclick=function(){
+  settings_expanded^=1
   document.getElementById('toolbar').style.height=20+(100*settings_expanded)
+  document.getElementById('toolbar_extra').style.height=(80*settings_expanded)
+  document.getElementById('toolbar_extra').style.visibility=["collapse","visible"][settings_expanded]
+
 };
+
+//Save button 
+document.getElementById('savedeckbutton').onclick=function(){
+  var dn=document.getElementById('deckname').innerText
+  localStorage.setItem(dn,JSON.stringify(deck))
+  var opt=document.createElement('option')
+  opt.value=opt.text=dn
+  document.getElementById('saveddecks').add(opt)
+}
+
+//Load button
+document.getElementById('loadbutton').onclick=function(){
+  deck=JSON.parse(localStorage.getItem(document.getElementById('saveddecks').value))
+  drawdeck()
+}
+
+//Delete button
+document.getElementById('deletebutton').onclick=function(){
+  var dd=document.getElementById('saveddecks')
+  localStorage.removeItem(dd.value)
+  dd.remove(dd.selectedIndex)
+  drawdeck()
+}
+
+//Populate stored decks on window load
+Object.keys(localStorage).forEach(function(d){
+  var opt=document.createElement('option')
+  opt.value=opt.text=d
+  document.getElementById('saveddecks').add(opt)
+})
 
 //Change from card pool to cardlist
 // document.getElementById('swapsources').onclick=function(){
@@ -224,13 +296,34 @@ for(var i=0;i<typedivs.length;i++){
   }
 }
 
-//Default deck
-deck={
-  'deckname':'New deck',
-  'ruler':{"name":"--"},
-  'main':[],
-  'stone':[],
-  'side':[]
+//generates decklist
+function decktotxt(){
+  var outf=document.getElementById('saveformat').value
+  var dtxt=""
+  if(outf=="ut"){
+
+  }
+  else if(outf=="json"){
+    dtxt=JSON.stringify(deck)
+  }
+  else if(outf=="txt"){
+    dtxt+="##"+document.getElementById('deckname').innerText
+    dtxt+="\n###Ruler\n"+deck.ruler.name 
+    dtxt+="\n###Main deck\n"
+    deck.main.forEach(a=>dtxt+=a.amount+"x "+a.name+"\n")
+    var i=1
+    while(deck["extra"+i]!=undefined){
+      dtxt+="###"+deck["extra"+i+"name"]+"\n"
+      deck["extra"+i].forEach(a=>dtxt+=a.amount+"x "+a.name+"\n")
+      i+=1
+    }
+    dtxt+="###Stone deck\n"
+    deck.stone.forEach(a=>dtxt+=a.amount+"x "+a.name+"\n")
+    dtxt+="###Sideboard\n"
+    deck.side.forEach(a=>dtxt+=a.amount+"x "+a.name+"\n")
+  }
+
+  return dtxt
 }
 
 //Draw deck on deck zone
@@ -415,7 +508,9 @@ function drawcards()
   for(var i=0;i<tcards;i++){
     var index=(search_page*tcards)+i
     try{
-      html+="<div class='card' id='"+index+"' style='background-image:url(./img/card-Back.png);'><br/>"
+      html+="<div class='card' id='"+index+"' "
+      if(imageloads==1){html+="style='background-image:url(./img/card-Back.png);'"}
+      html+="><br/>"
       if(overlay==1){html+="<center>"+filteredcards[index].cost+"<br/>"+filteredcards[index].name+"<br/>"}
       html+="</div>"
     }
@@ -631,6 +726,7 @@ function reset_search(){
     typedivs[i].style.backgroundColor="gray"
     typedivs[i].style.border="1px solid black"
   }
+  document.getElementById('formatselect').value="--"
   search_page=0
   filtercards()
   drawsearch()
