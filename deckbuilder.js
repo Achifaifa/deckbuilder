@@ -9,7 +9,6 @@
 //Deck size limit
 //Card tops in decklist (Epand on hover)
 //Banlist filtering
-//Functional graph
 //Full stats on graph click
 //Card zooming
 //Readable data overlay + toggle
@@ -860,23 +859,84 @@ function drawgraph(){
   var cwidth=document.getElementById('deck').offsetWidth-40
   ctx.canvas.width=cwidth
   ctx.canvas.height=60
+  ctx.clearRect(0,0,cwidth,60)
   ctx.fillStyle="white"
-  
+
+  var costs=[]
   for(var i=0;i<8;i++){
+    costs.push({'Resonator':0, 'Chant':0, 'Addition':0, 'other':0})
+  }
+  var totals=new Array(8).fill(0)//Lazy but whatever
+
+  //Process all cards on main deck
+  deck.main.forEach(function(a){
+    var ccost=parseInt(a.cost.replaceAll(/[^\d]/g, '') || 1)+(a.cost.match(/\}/g)||[]).length-1
+    if(a.type.includes("Resonator")){
+      costs[ccost].Resonator+=a.amount
+    }
+    else if(a.type.includes("Chant")){
+      costs[ccost].Chant+=a.amount
+    }
+    else if(a.type.includes("Addition")){
+      costs[ccost].Addition+=a.amount
+    }
+    else{
+      costs[ccost].other+=a.amount
+    }
+    totals[ccost]+=a.amount
+  })
+
+  //calculate height per unit
+  var pixpcard=30/Math.max(...totals)
+  console.log(totals)
+  console.log(pixpcard)
+
+  for(var i=0;i<8;i++){
+
     ctx.strokeStyle="white"
-    ctx.fillText(i,20+(cwidth-28)*i/8,55)
+    ctx.lineWidth=1
     ctx.beginPath()
-    ctx.moveTo(20+i*15,43.5)
-    ctx.lineTo(25+i*15,43.5)
+    var xpos=15+((cwidth-20)/8)*i
+    ctx.fillText(i,xpos,55)
+    //horizontal lines
+    ctx.beginPath()
+    ctx.moveTo(xpos,43.5)
+    ctx.lineTo(xpos+5,43.5)
     ctx.stroke()
+    
+    //draw vertical lines
+    xpos+=2.5
+    ctx.lineWidth=4
+
+    var ny=43.5
     ctx.strokeStyle="green"
-    ctx.lineWidth=5
     ctx.beginPath()
-    ctx.moveTo(22.5+i*15,42.5)
-    ctx.lineTo(22.5+i*15,42.5-(5*i))
+    ctx.moveTo(xpos,ny)
+    ny-=pixpcard*costs[i].Resonator
+    ctx.lineTo(xpos,ny)
+    ctx.stroke()
+    
+    ctx.strokeStyle="blue"
+    ctx.beginPath()
+    ctx.moveTo(xpos,ny)
+    ny-=pixpcard*costs[i].Chant
+    ctx.lineTo(xpos,ny)
+    ctx.stroke()
+    
+    ctx.strokeStyle="yellow"
+    ctx.beginPath()
+    ctx.moveTo(xpos,ny)
+    ny-=pixpcard*costs[i].Addition
+    ctx.lineTo(xpos,ny)
+    ctx.stroke()
+    
+    ctx.strokeStyle="red"
+    ctx.beginPath()
+    ctx.moveTo(xpos,ny)
+    ny-=pixpcard*costs[i].other
+    ctx.lineTo(xpos,ny)
     ctx.stroke()
   }
-  //to-do, actual plotting and variable width handling
 }
 
 //card area redraw on resize
