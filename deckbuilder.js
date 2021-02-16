@@ -2,12 +2,13 @@
 //
 //-----Minimum stuff-------
 //
-//Images (Pending on scraper)
+//Deal with double cards (ugh)
+//Removing single cards from decks
 //
 //-----Extra stuff-------
 //
 //Deck size limit
-//Card tops in decklist (Epand on hover)
+//Card tops in decklist (Expand on hover)
 //Banlist filtering
 //Full stats on graph click
 //Card zooming
@@ -34,6 +35,7 @@ cardtarget=""//subdeck where card will go
 races=[]//Array of all unique races, populated on data load
 sets={}//Dictionary of set names and codes, populated on data load
 formats={//Dictionary of formats and sets allowed in them
+  //to-do there's probably a better way
   "--":[],//empty set to reset formats
   "New Frontiers":[
     "Alice Origin",
@@ -47,62 +49,61 @@ formats={//Dictionary of formats and sets allowed in them
     "Starter Deck GHOST IN THE SHELL SAC_2045",
     "GHOST IN THE SHELL SAC_2045",
   ],
-  "Origin":[//All cards
-    "Advent of the Demon King",
-    "Alice Origin",
-    "Alice Origin II",
-    "Alice Origin III",
-    "Alice Origin Promos",
-    "Alice Origin Starter Decks - Faria/Melgis",
-    "Ancient Nights",
-    "Awakening of the Ancients",
-    "Battle for Attoractia",
-    "Curse of the Frozen Casket",
-    "Echoes of the New World",
-    "Faria, the Sacred Queen/Melgis, the Flame King",
-    "GHOST IN THE SHELL SAC_2045",
-    "Legacy Lost",
-    "New Dawn Rises",
-    "Prologue of Attoractia",
-    "Return of the Dragon Emperor",
-    "SDAO2 - Alice Origin Starter Decks - Valentina/Pricia",
-    "Starter",
-    "Starter - Below the Waves",
-    "Starter - Blood of Dragons",
-    "Starter - Children of the Night",
-    "Starter - Elemental Surge",
-    "Starter - Fairy Tale Force",
-    "Starter - King of the Mountain",
-    "Starter - Malefic Ice",
-    "Starter - Rage of R'lyeh",
-    "Starter - Swarming Elves",
-    "Starter - The Lost Tomes",
-    "Starter - Vampiric Hunger",
-    "Starter Deck GHOST IN THE SHELL SAC_2045",
-    "Starter Deck Valhalla - Darkness",
-    "Starter Deck Valhalla - Fire",
-    "Starter Deck Valhalla - Light",
-    "Starter Deck Valhalla - Water",
-    "Starter Deck Valhalla - Wind",
-    "The Castle of Heaven and the Two Towers",
-    "The Crimson Moon Fairy Tale",
-    "The Dawn of Valhalla",
-    "The Decisive Battle of Valhalla",
-    "The Epic of the Dragon Lord",
-    "The Millennia of Ages",
-    "The Moon Priestess Returns",
-    "The Moonlit Saviour",
-    "The Seven Kings of the Land",
-    "The Shaft of Light of Valhalla",
-    "The Strangers of New Valhalla",
-    "The Time-Spinning Witch",
-    "The Twilight Wanderer",
-    "The War of Valhalla",
-    "Vingolf 2 - Valkyria Chronicles",
-    "Vingolf 3 - Ruler All Stars",
-    "Vingolf series - Engage Series",
-    "Winds of the Ominous Moon",
-  ]
+  // Complete list of sets
+  //   "Advent of the Demon King",
+  //   "Alice Origin",
+  //   "Alice Origin II",
+  //   "Alice Origin III",
+  //   "Alice Origin Promos",
+  //   "Alice Origin Starter Decks - Faria/Melgis",
+  //   "Ancient Nights",
+  //   "Awakening of the Ancients",
+  //   "Battle for Attoractia",
+  //   "Curse of the Frozen Casket",
+  //   "Echoes of the New World",
+  //   "Faria, the Sacred Queen/Melgis, the Flame King",
+  //   "GHOST IN THE SHELL SAC_2045",
+  //   "Legacy Lost",
+  //   "New Dawn Rises",
+  //   "Prologue of Attoractia",
+  //   "Return of the Dragon Emperor",
+  //   "SDAO2 - Alice Origin Starter Decks - Valentina/Pricia",
+  //   "Starter",
+  //   "Starter - Below the Waves",
+  //   "Starter - Blood of Dragons",
+  //   "Starter - Children of the Night",
+  //   "Starter - Elemental Surge",
+  //   "Starter - Fairy Tale Force",
+  //   "Starter - King of the Mountain",
+  //   "Starter - Malefic Ice",
+  //   "Starter - Rage of R'lyeh",
+  //   "Starter - Swarming Elves",
+  //   "Starter - The Lost Tomes",
+  //   "Starter - Vampiric Hunger",
+  //   "Starter Deck GHOST IN THE SHELL SAC_2045",
+  //   "Starter Deck Valhalla - Darkness",
+  //   "Starter Deck Valhalla - Fire",
+  //   "Starter Deck Valhalla - Light",
+  //   "Starter Deck Valhalla - Water",
+  //   "Starter Deck Valhalla - Wind",
+  //   "The Castle of Heaven and the Two Towers",
+  //   "The Crimson Moon Fairy Tale",
+  //   "The Dawn of Valhalla",
+  //   "The Decisive Battle of Valhalla",
+  //   "The Epic of the Dragon Lord",
+  //   "The Millennia of Ages",
+  //   "The Moon Priestess Returns",
+  //   "The Moonlit Saviour",
+  //   "The Seven Kings of the Land",
+  //   "The Shaft of Light of Valhalla",
+  //   "The Strangers of New Valhalla",
+  //   "The Time-Spinning Witch",
+  //   "The Twilight Wanderer",
+  //   "The War of Valhalla",
+  //   "Vingolf 2 - Valkyria Chronicles",
+  //   "Vingolf 3 - Ruler All Stars",
+  //   "Vingolf series - Engage Series",
+  //   "Winds of the Ominous Moon",
 }
 
 //Search parameters
@@ -508,7 +509,9 @@ function drawcards()
     var index=(search_page*tcards)+i
     try{
       html+="<div class='card' id='"+index+"' "
-      if(imageloads==1){html+="style='background-image:url(./img/card-Back.png);'"}
+      if(imageloads==1){
+        html+="style='background-image:url(./img/"+filteredcards[index].id+".jpg);'"
+      }
       html+="><br/>"
       if(overlay==1){html+="<center>"+filteredcards[index].cost+"<br/>"+filteredcards[index].name+"<br/>"}
       html+="</div>"
@@ -586,7 +589,7 @@ function drawcards()
       else{
         deck.ruler=filteredcards[index]
       }
-      
+      console.log(index)
       drawdeck()
     }
 
@@ -888,8 +891,6 @@ function drawgraph(){
 
   //calculate height per unit
   var pixpcard=30/Math.max(...totals)
-  console.log(totals)
-  console.log(pixpcard)
 
   for(var i=0;i<8;i++){
 
