@@ -2,13 +2,11 @@
 //
 //-----Minimum stuff-------
 //
-//Deal with double cards (ugh)
 //Removing single cards from decks
 //
 //-----Extra stuff-------
 //
 //Deck size limit
-//Card tops in decklist (Expand on hover)
 //Banlist filtering
 //Full stats on graph click
 //Card zooming
@@ -49,6 +47,7 @@ formats={//Dictionary of formats and sets allowed in them
     "Starter Deck GHOST IN THE SHELL SAC_2045",
     "GHOST IN THE SHELL SAC_2045",
   ],
+}
   // Complete list of sets
   //   "Advent of the Demon King",
   //   "Alice Origin",
@@ -104,7 +103,6 @@ formats={//Dictionary of formats and sets allowed in them
   //   "Vingolf 3 - Ruler All Stars",
   //   "Vingolf series - Engage Series",
   //   "Winds of the Ominous Moon",
-}
 
 //Search parameters
 //will -> [Y,R,B,G,P,V]
@@ -507,7 +505,7 @@ function drawcards()
 
   for(var i=0;i<tcards;i++){
     var index=(search_page*tcards)+i
-    try{
+    if(index<filteredcards.length){
       html+="<div class='card' id='"+index+"' "
       if(imageloads==1){
         html+="style='background-image:url(./img/"+filteredcards[index].id+".jpg);'"
@@ -516,7 +514,6 @@ function drawcards()
       if(overlay==1){html+="<center>"+filteredcards[index].cost+"<br/>"+filteredcards[index].name+"<br/>"}
       html+="</div>"
     }
-    catch{}
   }
 
   //add page navigation buttons
@@ -701,9 +698,13 @@ function loadcards(){
       carddb=carddb.concat(cards[i].sets[j].cards)
     }
   }
-  //populate races array
+  //populate races array and remove J-rulers
   races=[]
+  var ndb=[]
   for(var i=0;i<carddb.length;i++){
+    if(!carddb[i].id.includes("J")){
+      ndb.push(carddb[i])
+    }
     for(j=0;j<carddb[i].race.length;j++){
       var race=carddb[i].race[j]
       if(!races.includes(race) && race.length>0){
@@ -712,6 +713,8 @@ function loadcards(){
       }
     }
   }
+  carddb=ndb
+  carddb.reverse()//so that newer cards with less image bugs show first
 }
 
 function reset_search(){

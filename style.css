@@ -76,18 +76,22 @@
   cursor:pointer;
 }
 #arrowprev{
+  float:left;
   cursor:pointer;
   left:1%;
   position:absolute;
   background-color:#FF0000;
   opacity: 0.5;
+  z-index: 9;
 }
 #arrownext{
+  float:right;
   cursor:pointer;
   right:21%;
   position:absolute;
   background-color:#00FF00;
   opacity: 0.5;
+  z-index: 9;
 }
 .decksection{
   display: inline-block; 
