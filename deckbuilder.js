@@ -748,7 +748,7 @@ function filtercards(){
 
     //Filter by attribute 
     if((search_params.will[5]==0 && swills.length>0 &&//if void will is off:
-        !a.cost.split('{').splice(1).every(z=>swills.includes('{'+z)) ||
+        !a.cost.replace(/[0-9]/g, '').replace('{}',"").split('{').splice(1).every(z=>swills.includes('{'+z)) ||
         !swills.every(z=>a.cost.includes(z)))
          ||
       (search_params.will[5]==1 && //or if it's on
