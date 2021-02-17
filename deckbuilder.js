@@ -1,21 +1,25 @@
-//TO-DO list (Priority order)
+//-----fixed since last spam-----
 //
-//-----Minimum stuff-------
+// Cost >7 cards no longer break graph
+// Rune type cards can now be sent to decks
+// Added wanderer format (As default)
+// Single cards can be added and removed to/from decks
 //
-//Removing single cards from decks
+//-----Stuff reported by people (fix this first)-----
+//
+// Card zooming
 //
 //-----Extra stuff-------
 //
-//Deck size limit
-//Banlist filtering
-//Full stats on graph click
-//Card zooming
-//Readable data overlay + toggle
-//Improve search to O(n)
-//Import cardlist from booster generator
-//bugs when renaming several decks simultaneously
-//bugs when deleting extra deck causing other EDs to not show
-//Accessibility stuff
+// Deck size limit
+// Banlist filtering
+// Full stats on graph click
+// Readable data overlay
+// Improve search to O(n)
+// Import cardlist from booster generator
+// bugs when renaming several decks simultaneously
+// bugs when deleting extra deck causing other EDs to not show
+// Accessibility stuff (Better overlay w/ more data, image alts, etc)
 
 window.onload=function(){
 
@@ -34,7 +38,53 @@ races=[]//Array of all unique races, populated on data load
 sets={}//Dictionary of set names and codes, populated on data load
 formats={//Dictionary of formats and sets allowed in them
   //to-do there's probably a better way
-  "--":[],//empty set to reset formats
+  "Wanderer":[
+    "Advent of the Demon King",
+    "Alice Origin",
+    "Alice Origin II",
+    "Alice Origin III",
+    "Alice Origin Promos",
+    "Alice Origin Starter Decks - Faria/Melgis",
+    "Ancient Nights",
+    "Awakening of the Ancients",
+    "Battle for Attoractia",
+    "Curse of the Frozen Casket",
+    "Echoes of the New World",
+    "Faria, the Sacred Queen/Melgis, the Flame King",
+    "GHOST IN THE SHELL SAC_2045",
+    "Legacy Lost",
+    "New Dawn Rises",
+    "Prologue of Attoractia",
+    "Return of the Dragon Emperor",
+    "SDAO2 - Alice Origin Starter Decks - Valentina/Pricia",
+    "Starter - Below the Waves",
+    "Starter - Blood of Dragons",
+    "Starter - Children of the Night",
+    "Starter - Elemental Surge",
+    "Starter - Fairy Tale Force",
+    "Starter - King of the Mountain",
+    "Starter - Malefic Ice",
+    "Starter - Rage of R'lyeh",
+    "Starter - Swarming Elves",
+    "Starter - The Lost Tomes",
+    "Starter - Vampiric Hunger",
+    "Starter Deck GHOST IN THE SHELL SAC_2045",
+    "The Castle of Heaven and the Two Towers",
+    "The Crimson Moon Fairy Tale",
+    "The Decisive Battle of Valhalla",
+    "The Epic of the Dragon Lord",
+    "The Millennia of Ages",
+    "The Moon Priestess Returns",
+    "The Moonlit Saviour",
+    "The Seven Kings of the Land",
+    "The Strangers of New Valhalla",
+    "The Time-Spinning Witch",
+    "The Twilight Wanderer",
+    "Vingolf 2 - Valkyria Chronicles",
+    "Vingolf 3 - Ruler All Stars",
+    "Vingolf series - Engage Series",
+    "Winds of the Ominous Moon"
+  ],
   "New Frontiers":[
     "Alice Origin",
     "Alice Origin II",
@@ -47,62 +97,19 @@ formats={//Dictionary of formats and sets allowed in them
     "Starter Deck GHOST IN THE SHELL SAC_2045",
     "GHOST IN THE SHELL SAC_2045",
   ],
+  "--":[]//empty set to reset formats
 }
-  // Complete list of sets
-  //   "Advent of the Demon King",
-  //   "Alice Origin",
-  //   "Alice Origin II",
-  //   "Alice Origin III",
-  //   "Alice Origin Promos",
-  //   "Alice Origin Starter Decks - Faria/Melgis",
-  //   "Ancient Nights",
-  //   "Awakening of the Ancients",
-  //   "Battle for Attoractia",
-  //   "Curse of the Frozen Casket",
-  //   "Echoes of the New World",
-  //   "Faria, the Sacred Queen/Melgis, the Flame King",
-  //   "GHOST IN THE SHELL SAC_2045",
-  //   "Legacy Lost",
-  //   "New Dawn Rises",
-  //   "Prologue of Attoractia",
-  //   "Return of the Dragon Emperor",
-  //   "SDAO2 - Alice Origin Starter Decks - Valentina/Pricia",
-  //   "Starter",
-  //   "Starter - Below the Waves",
-  //   "Starter - Blood of Dragons",
-  //   "Starter - Children of the Night",
-  //   "Starter - Elemental Surge",
-  //   "Starter - Fairy Tale Force",
-  //   "Starter - King of the Mountain",
-  //   "Starter - Malefic Ice",
-  //   "Starter - Rage of R'lyeh",
-  //   "Starter - Swarming Elves",
-  //   "Starter - The Lost Tomes",
-  //   "Starter - Vampiric Hunger",
-  //   "Starter Deck GHOST IN THE SHELL SAC_2045",
+
+  //OG valhalla sets, not allowed in wanderer
+  //   "The Dawn of Valhalla",
+  //   "The War of Valhalla",
+  //   "The Shaft of Light of Valhalla",
   //   "Starter Deck Valhalla - Darkness",
   //   "Starter Deck Valhalla - Fire",
   //   "Starter Deck Valhalla - Light",
   //   "Starter Deck Valhalla - Water",
   //   "Starter Deck Valhalla - Wind",
-  //   "The Castle of Heaven and the Two Towers",
-  //   "The Crimson Moon Fairy Tale",
-  //   "The Dawn of Valhalla",
-  //   "The Decisive Battle of Valhalla",
-  //   "The Epic of the Dragon Lord",
-  //   "The Millennia of Ages",
-  //   "The Moon Priestess Returns",
-  //   "The Moonlit Saviour",
-  //   "The Seven Kings of the Land",
-  //   "The Shaft of Light of Valhalla",
-  //   "The Strangers of New Valhalla",
-  //   "The Time-Spinning Witch",
-  //   "The Twilight Wanderer",
-  //   "The War of Valhalla",
-  //   "Vingolf 2 - Valkyria Chronicles",
-  //   "Vingolf 3 - Ruler All Stars",
-  //   "Vingolf series - Engage Series",
-  //   "Winds of the Ominous Moon",
+  //   "Starter",
 
 //Search parameters
 //will -> [Y,R,B,G,P,V]
@@ -324,31 +331,46 @@ function decktotxt(){
   return dtxt
 }
 
+//Card add and remove used in listeners on drawdeck()
+function addremcards(tgt,cid,qty){
+  //tgt: target deck
+  //cid: card ID (index in that deck)
+  //qty: quantity (cards to add or remove)
+  console.log(tgt,cid,qty)
+  deck[tgt][cid].amount+=qty
+  if(deck[tgt][cid].amount>4){deck[tgt][cid].amount=4}
+  else if(deck[tgt][cid].amount<=0){deck[tgt].splice(cid,1)}
+  drawdeck()
+}
+
 //Draw deck on deck zone
 function drawdeck()
 {
   var html="<center>"
   html+="<b id='deckname'>"+deck.deckname+"</b><br/>"
 
-  html+="<canvas id='graph'></canvas><br/><br/>" //to-do
+  html+="<canvas id='graph'></canvas><br/><br/>"
 
   html+="<span class='decksection' id='rulerdeck'>Ruler</span><br/>"+deck.ruler.name+"<br/>"
 
   html+="<br/><span class='decksection' id='maindeck'>Main deck</span><br/>"
   for(var i=0;i<deck.main.length;i++){
-    html+=deck.main[i].amount+"x "+deck.main[i].name+"<br/>"
+    html+="<span class='deckitemno' id='"+i+"'>"+deck.main[i].amount+"x</span> "
+    html+="<span class='deckitem' id='"+i+"'>"+deck.main[i].name+"</span><br/>"
   }
 
   html+="<br/><span class='decksection' id='stonedeck'>Stone deck</span><br/>"
   for(var i=0;i<deck.stone.length;i++){
-    html+=deck.stone[i].amount+"x "+deck.stone[i].name+"<br/>"
+    html+="<span class='sdeckitemno' id='"+i+"'>"+deck.stone[i].amount+"x</span> "
+    html+="<span class='sdeckitem' id='"+i+"'>"+deck.stone[i].name+"</span><br/>"
   }
 
   var i=1
   while (deck["extra"+i]!=undefined){
     html+="<br/><span class='decksection' id='extra"+i+"'>"+deck["extra"+i+"name"]+"</span><br/>"
     for(var j=0;j<deck["extra"+i].length;j++){
-      html+=deck["extra"+i][j].amount+"x "+deck["extra"+i][j].name+"<br/>"
+      html+="<span class='e"+i+"deckitemno' id='"+j+"'>"+deck["extra"+i][j].amount+"x</span> "
+      html+="<span class='e"+i+"deckitem' id='"+j+"'>"+deck["extra"+i][j].name+"</span><br/>"
     }
     i+=1
   }
@@ -356,26 +378,31 @@ function drawdeck()
 
   html+="<br/><span class='decksection' id='sideboard'>Sideboard</span><br/>"
   for(var i=0;i<deck.side.length;i++){
-    html+=deck.side[i].amount+"x "+deck.side[i].name+"<br/>"
+    html+="<span class='sideckitemno' id='"+i+"'>"+deck.side[i].amount+"x</span> "
+    html+="<span class='sideckitem' id='"+i+"'>"+deck.side[i].name+"</span><br/>"
   }
 
   document.getElementById('deck').innerHTML=html
 
   //Edit section target colouring
-  if(cardtarget=="main"){
-    document.getElementById('maindeck').style.border="1px solid white"
-  }
-  else if(cardtarget=="side"){
-    document.getElementById('sideboard').style.border="1px solid white"
-  }
-  else if(cardtarget=="stone"){
-    document.getElementById('stonedeck').style.border="1px solid white"
-  }
-  else if(cardtarget=="ruler"){
-    document.getElementById('rulerdeck').style.border="1px solid white"
-  }
-  else if(cardtarget.includes("extra")){
-    document.getElementById(cardtarget).style.border="1px solid white"
+  if(cardtarget=="main"){       document.getElementById('maindeck').style.border="1px solid white"}
+  else if(cardtarget=="side"){  document.getElementById('sideboard').style.border="1px solid white"}
+  else if(cardtarget=="stone"){ document.getElementById('stonedeck').style.border="1px solid white"}
+  else if(cardtarget=="ruler"){ document.getElementById('rulerdeck').style.border="1px solid white"}
+  else if(cardtarget.includes("extra")){  document.getElementById(cardtarget).style.border="1px solid white"}
+
+  //Card adding and removal listeners
+  Array.from(document.getElementsByClassName('deckitemno')).forEach(a=>a.onclick=function(){addremcards('main',a.id,+1)})
+  Array.from(document.getElementsByClassName('deckitem')).forEach(a=>a.onclick=function(){addremcards('main',a.id,-1)})
+  Array.from(document.getElementsByClassName('sdeckitemno')).forEach(a=>a.onclick=function(){addremcards('stone',a.id,+1)})
+  Array.from(document.getElementsByClassName('sdeckitem')).forEach(a=>a.onclick=function(){addremcards('stone',a.id,-1)})
+  Array.from(document.getElementsByClassName('sideckitemno')).forEach(a=>a.onclick=function(){addremcards('side',a.id,+1)})
+  Array.from(document.getElementsByClassName('sideckitem')).forEach(a=>a.onclick=function(){addremcards('side',a.id,-1)})
+  var i=1
+  while(deck['extra'+i]!=undefined){
+    Array.from(document.getElementsByClassName('e'+i+'deckitemno')).forEach(a=>a.onclick=function(i){return function(){addremcards('extra'+i,a.id,+1)}}(i))
+    Array.from(document.getElementsByClassName('e'+i+'deckitem')).forEach(a=>a.onclick=function(i){return function(){addremcards('extra'+i,a.id,-1)}}(i))
+    i+=1
   }
 
   //Deck name listener
@@ -541,7 +568,7 @@ function drawcards()
     dcards[i].onmouseover=function(){
       var card=filteredcards[this.id]
       var ctype=card.type
-      if(["Resonator","Chant","Addition","Regalia"].some(z=>card.type.includes(z))){
+      if(["Resonator","Chant","Addition","Regalia","Rune"].some(z=>card.type.includes(z))){
         document.getElementById('maindeck').style.border="1px solid white"
         cardtarget="main"
       }
@@ -742,6 +769,9 @@ function filtercards(){
 
   //Filter by set
   setfcards=[]
+  //Temporarily add format sets to search
+  var sbackup=search_params.sets
+  search_params.sets=search_params.sets.concat(formats[document.getElementById('formatselect').value])
   if(search_params.sets.length>0){
     for(var i=0;i<carddb.length;i++){
       for(j=0;j<search_params.sets.length;j++){
@@ -753,6 +783,7 @@ function filtercards(){
     }
   }
   else{setfcards=carddb}
+  search_params.sets=sbackup
 
   //Filter by attribute (will cost colours)
   //Attributes in DB are {W}{R}{U}{G}{B}
@@ -877,6 +908,7 @@ function drawgraph(){
   //Process all cards on main deck
   deck.main.forEach(function(a){
     var ccost=parseInt(a.cost.replaceAll(/[^\d]/g, '') || 1)+(a.cost.match(/\}/g)||[]).length-1
+    if(ccost>7){ccost=7}
     if(a.type.includes("Resonator")){
       costs[ccost].Resonator+=a.amount
     }
@@ -902,10 +934,11 @@ function drawgraph(){
     ctx.beginPath()
     var xpos=15+((cwidth-20)/8)*i
     ctx.fillText(i,xpos,55)
+    if(i==7){ctx.fillText("+",xpos+5,55)}
     //horizontal lines
     ctx.beginPath()
     ctx.moveTo(xpos,43.5)
-    ctx.lineTo(xpos+5,43.5)
+    ctx.lineTo(xpos+7,43.5)
     ctx.stroke()
     
     //draw vertical lines
