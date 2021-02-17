@@ -8,7 +8,6 @@
 // Banlist filtering
 // Full stats on graph click
 // Readable data overlay
-// Improve search to O(n)
 // Import cardlist from booster generator
 // bugs when renaming several decks simultaneously
 // bugs when deleting extra deck causing other EDs to not show
@@ -23,7 +22,7 @@ imageloads=1//image loading. Disabling it saves bandwidth
 search_source=0 //0: normal pool, 1: cardlist
 //these can probably be optimized out
 will_types=["light", "fire", "water", "wind", "dark", "void"]
-will_equivs={"light":"{W}", "fire":"{R}", "water":"{U}", "wind":"{G}", "dark":"{B}"}
+will_equivs=["{W}","{R}","{U}","{G}","{B}"]
 cost_types=["0", "1", "2", "3", "4", "5", "6", "7"]
 targets=["main","side"] //target decks for most cards
 cardtarget=""//subdeck where card will go
@@ -329,7 +328,6 @@ function addremcards(tgt,cid,qty){
   //tgt: target deck
   //cid: card ID (index in that deck)
   //qty: quantity (cards to add or remove)
-  console.log(tgt,cid,qty)
   deck[tgt][cid].amount+=qty
   if(deck[tgt][cid].amount>4){deck[tgt][cid].amount=4}
   else if(deck[tgt][cid].amount<=0){deck[tgt].splice(cid,1)}
@@ -583,7 +581,6 @@ function drawcards()
         }
       }
       else{deck.ruler=filteredcards[index]}
-      console.log(index)
       drawdeck()
     }
 
@@ -724,123 +721,71 @@ function reset_search(){
 
 function filtercards(){
 
-  //Filter by set
-  setfcards=[]
+  filteredcards=[]
   //Temporarily add format sets to search
   var sbackup=search_params.sets
   search_params.sets=search_params.sets.concat(formats[document.getElementById('formatselect').value])
-  if(search_params.sets.length>0){
-    for(var i=0;i<carddb.length;i++){
-      for(j=0;j<search_params.sets.length;j++){
-        if(carddb[i].id.split('-')[0]==sets[search_params.sets[j]]){
-          setfcards.push(carddb[i])
-          break
-        }
-      }
-    }
-  }
-  else{setfcards=carddb}
-  search_params.sets=sbackup
-
-  //Filter by attribute (will cost colours)
-  //Attributes in DB are {W}{R}{U}{G}{B}
-  var willfcards=[]
+  
+  //Add enabled will symbols to search params
   var swills=[]
-  for(var i=0;i<search_params.will.length-1;i++){
-    if(search_params.will[i]==1){
-      swills.push(will_equivs[will_types[i]])
-    }
-  }
-  //Search if void will is off
-  if(search_params.will[5]==0 && swills.length>0){
-    if(swills.length>0){
-      for(var i=0;i<setfcards.length;i++){
-        if(swills.every(z=>setfcards[i].cost.includes(z))){
-          willfcards.push(setfcards[i])
-        }
-      }
-    }
-  }
-  //Search if void will is on
-  else if(search_params.will[5]==1){
-    for(var i=0;i<setfcards.length;i++){
-      //one bracket and at least one number
-      if((setfcards[i].cost.match(/\{/g)||[]).length==1 && (setfcards[i].cost.match(/\d/g)||[]).length>0){
-        willfcards.push(setfcards[i])
-      }
-    }
-  }
-  else {willfcards=setfcards}
-
-  //Filter by cost
-  var costfcards=[]
+  search_params.will.forEach((a,i)=>{if(a==1){swills.push(will_equivs[i])}})
+  console.log(swills)
+  //Add enabled costs to search params
   var scosts=[]
   if(search_params.cost.some(it=>it!=0)){
-    for(var i=0;i<search_params.cost.length;i++){
-      if(search_params.cost[i]==1){
-        scosts.push(i)
-      }
-    }
+    search_params.cost.forEach((a,i)=>{if(a==1){scosts.push(i)}})
   }
-  if(scosts.length>0){
-    for(var i=0;i<willfcards.length;i++){
-      var ccost=parseInt(willfcards[i].cost.replaceAll(/[^\d]/g, '') || 1)+(willfcards[i].cost.match(/\}/g)||[]).length-1
-      if(scosts.indexOf(ccost)!=-1){
-        costfcards.push(willfcards[i])
-      }
-      else if(scosts.indexOf(7)!=-1 && ccost>7){
-        costfcards.push(willfcards[i])
-      }
-    }
-  }
-  else{costfcards=willfcards}
 
-  //Filter by text
-  var textfcards=[]
-  if(search_params.textc.length>0){
-    for(var i=0;i<costfcards.length;i++){
-      var txtcheck=false
-      for(j=0;j<costfcards[i].abilities.length;j++){
-        if(costfcards[i].abilities[j].toLowerCase().includes(search_params.textc)){
-          txtcheck=true
-        }
-      }
-      if(costfcards[i].name.toLowerCase().includes(search_params.textc) || txtcheck){
-        textfcards.push(costfcards[i])
+  //Iterate over db
+  carddb.forEach(a=>{
+
+    var filtered=true
+
+    //Filter by set
+    if(search_params.sets.length>0 && !search_params.sets.some(z=>sets[z]==a.id.split('-')[0])){
+      filtered=false
+    }
+
+    //Filter by attribute 
+    if((search_params.will[5]==0 && swills.length>0 &&//if void will is off:
+        !a.cost.split('{').splice(1).every(z=>swills.includes('{'+z)) ||
+        !swills.every(z=>a.cost.includes(z)))
+         ||
+      (search_params.will[5]==1 && //or if it's on
+      !((a.cost.match(/\{/g)||[]).length==1 &&
+        (a.cost.match(/\d/g)||[]).length>0))){
+      filtered=false
+    }
+
+    //Filter by cost
+    if(scosts.length>0){
+      var ccost=parseInt(a.cost.replaceAll(/[^\d]/g, '') || 1)+(a.cost.match(/\}/g)||[]).length-1
+      if(!scosts.includes(ccost) || (!scosts.includes(7) && ccost>7)){
+        filtered=false
       }
     }
-  }
-  else{textfcards=costfcards}
 
-  //Filter by type
-  typefcards=[]
-  if(search_params.types.length>0){
-    for(var i=0;i<textfcards.length;i++){
-      for(var j=0;j<search_params.types.length;j++){
-        if(textfcards[i].type.indexOf(search_params.types[j])!=-1){
-          typefcards.push(textfcards[i])
-          break
-        }
-      }
+    //Filter by text
+    if(search_params.textc.length>0 && !a.name.toLowerCase().includes(search_params.textc) && !a.abilities.some(z=>z.includes(search_params.textc))){
+      filtered=false
     }
-  }
-  else{typefcards=textfcards}
 
-  //Filter by race
-  racefcards=[]
-  if(search_params.races.length>0){
-    for(var i=0;i<typefcards.length;i++){
-      for(var j=0;j<search_params.races.length;j++){
-        if(typefcards[i].race.includes(search_params.races[j])){
-          racefcards.push(typefcards[i])
-          break
-        }
-      }
+    //Filter by type
+    if(search_params.types.length>0 && !search_params.types.some(z=>a.type.includes(z))){
+      filtered=false
     }
-  }
-  else{racefcards=typefcards}
 
-  filteredcards=racefcards
+    //Filter by race
+    if(search_params.races.length>0 && !search_params.races.some(z=>a.race.includes(z))){
+      filtered=false
+    }
+
+    if(filtered){filteredcards.push(a)}
+
+
+  })
+  search_params.sets=sbackup
+
   search_page=0 //reset page
   drawcards()
   console.log("Total cards filtered: "+filteredcards.length)
