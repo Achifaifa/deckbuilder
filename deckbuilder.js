@@ -9,7 +9,6 @@
 // Import cardlist from booster generator
 // bugs when renaming several decks simultaneously
 // bugs when deleting extra deck causing other EDs to not show
-// Accessibility stuff (Better overlay w/ more data, image alts, etc)
 
 window.onload=function(){
 
@@ -789,7 +788,7 @@ function filtercards(){
     //Filter by cost
     if(scosts.length>0){
       var ccost=parseInt(a.cost.replaceAll(/[^\d]/g, '') || 1)+(a.cost.match(/\}/g)||[]).length-1
-      if(!scosts.includes(ccost) || (!scosts.includes(7) && ccost>7)){
+      if(!(scosts.includes(ccost) || (scosts.includes(7) && ccost>7))){
         filtered=false
       }
     }
@@ -840,18 +839,10 @@ function drawgraph(){
   deck.main.forEach(function(a){
     var ccost=parseInt(a.cost.replaceAll(/[^\d]/g, '') || 1)+(a.cost.match(/\}/g)||[]).length-1
     if(ccost>7){ccost=7}
-    if(a.type.includes("Resonator")){
-      costs[ccost].Resonator+=a.amount
-    }
-    else if(a.type.includes("Chant")){
-      costs[ccost].Chant+=a.amount
-    }
-    else if(a.type.includes("Addition")){
-      costs[ccost].Addition+=a.amount
-    }
-    else{
-      costs[ccost].other+=a.amount
-    }
+    if(a.type.includes("Resonator")){     costs[ccost].Resonator+=a.amount}
+    else if(a.type.includes("Chant")){    costs[ccost].Chant+=a.amount}
+    else if(a.type.includes("Addition")){ costs[ccost].Addition+=a.amount}
+    else{                                 costs[ccost].other+=a.amount}
     totals[ccost]+=a.amount
   })
 
