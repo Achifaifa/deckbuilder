@@ -1,13 +1,11 @@
 //-----Stuff reported by people (fix this first)-----
 //
-// Card zooming
 //
 //-----Extra stuff-------
 //
 // Deck size limit
 // Banlist filtering
 // Full stats on graph click
-// Readable data overlay
 // Import cardlist from booster generator
 // bugs when renaming several decks simultaneously
 // bugs when deleting extra deck causing other EDs to not show
@@ -135,163 +133,168 @@ deck={
 //Populate formats list
 Object.keys(formats).forEach(a=>document.getElementById('formatselect').innerHTML+="<option value='"+a+"'>"+a+"</option>")
 
-//Update format list
-document.getElementById('formatselect').onchange=function(){
-  search_params.sets=formats[this.value]
-  drawsearch()
-  filtercards()
-}
+//general listener functions
+function addlisteners(){
 
-//Overlay option
-document.getElementById('overlayoption').onchange=function(){
-  overlay=this.value
-  drawcards()
-}
+  //Update format list
+  document.getElementById('formatselect').onchange=function(){
+    search_params.sets=formats[this.value]
+    drawsearch()
+    filtercards()
+  }
 
-//Image loading option
-document.getElementById('imageoption').onchange=function(){
-  search_params.sets=formats[this.value]
-  imageloads=this.value
-  drawcards()
-}
+  //Overlay option
+  document.getElementById('overlayoption').onchange=function(){
+    overlay=this.value
+    drawcards()
+  }
 
-//Download button (download deck as text file)
-//This shit is cursed
-document.getElementById('dlbutton').onclick=function(){
-  var dname=document.getElementById('deckname').innerText+".txt"
-  var a=document.createElement('a')
-  a.setAttribute('href','data:text/plain;charset=utf-8,'+encodeURIComponent(decktotxt()))
-  a.setAttribute('download',dname)
-  a.style.display='none'
-  document.body.appendChild(a)
-  a.click();
-  document.body.removeChild(a)
-}
+  //Image loading option
+  document.getElementById('imageoption').onchange=function(){
+    search_params.sets=formats[this.value]
+    imageloads=this.value
+    drawcards()
+  }
 
-//Copy button (Copy to clipboard)
-document.getElementById('copybutton').onclick=function(){
-  navigator.clipboard.writeText(decktotxt())
-}
+  //Download button (download deck as text file)
+  //This shit is cursed
+  document.getElementById('dlbutton').onclick=function(){
+    var dname=document.getElementById('deckname').innerText+".txt"
+    var a=document.createElement('a')
+    a.setAttribute('href','data:text/plain;charset=utf-8,'+encodeURIComponent(decktotxt()))
+    a.setAttribute('download',dname)
+    a.style.display='none'
+    document.body.appendChild(a)
+    a.click();
+    document.body.removeChild(a)
+  }
 
-//Settings menu
-document.getElementById('preferences').onclick=function(){
-  settings_expanded^=1
-  document.getElementById('toolbar').style.height=20+(100*settings_expanded)
-  document.getElementById('toolbar_extra').style.height=(80*settings_expanded)
-  document.getElementById('toolbar_extra').style.visibility=["collapse","visible"][settings_expanded]
+  //Copy button (Copy to clipboard)
+  document.getElementById('copybutton').onclick=function(){
+    navigator.clipboard.writeText(decktotxt())
+  }
 
-};
+  //Settings menu
+  document.getElementById('preferences').onclick=function(){
+    settings_expanded^=1
+    document.getElementById('toolbar').style.height=20+(100*settings_expanded)
+    document.getElementById('toolbar_extra').style.height=(80*settings_expanded)
+    document.getElementById('toolbar_extra').style.visibility=["collapse","visible"][settings_expanded]
 
-//Save button 
-document.getElementById('savedeckbutton').onclick=function(){
-  var dn=document.getElementById('deckname').innerText
-  localStorage.setItem(dn,JSON.stringify(deck))
-  var opt=document.createElement('option')
-  opt.value=opt.text=dn
-  document.getElementById('saveddecks').add(opt)
-}
+  };
 
-//Load button
-document.getElementById('loadbutton').onclick=function(){
-  deck=JSON.parse(localStorage.getItem(document.getElementById('saveddecks').value))
-  drawdeck()
-}
+  //Save button 
+  document.getElementById('savedeckbutton').onclick=function(){
+    var dn=document.getElementById('deckname').innerText
+    localStorage.setItem(dn,JSON.stringify(deck))
+    var opt=document.createElement('option')
+    opt.value=opt.text=dn
+    document.getElementById('saveddecks').add(opt)
+  }
 
-//Delete button
-document.getElementById('deletebutton').onclick=function(){
-  var dd=document.getElementById('saveddecks')
-  localStorage.removeItem(dd.value)
-  dd.remove(dd.selectedIndex)
-  drawdeck()
-}
+  //Load button
+  document.getElementById('loadbutton').onclick=function(){
+    deck=JSON.parse(localStorage.getItem(document.getElementById('saveddecks').value))
+    drawdeck()
+  }
 
-//Populate stored decks on window load
-Object.keys(localStorage).forEach(function(d){
-  var opt=document.createElement('option')
-  opt.value=opt.text=d
-  document.getElementById('saveddecks').add(opt)
-})
+  //Delete button
+  document.getElementById('deletebutton').onclick=function(){
+    var dd=document.getElementById('saveddecks')
+    localStorage.removeItem(dd.value)
+    dd.remove(dd.selectedIndex)
+    drawdeck()
+  }
 
-//Change from card pool to cardlist
-// document.getElementById('swapsources').onclick=function(){
-//   reset_search()
-//   search_source=!search_source
-//   if(search_source==1){
-//     var html="<button>Import cardlist</button>"
-//     document.getElementById('swapsources').innerText="Use card pool"    
-//   }
-//   else{
-//     var html="Format <select><option>Wanderer</option></select>\
-//               sets <input type='text' list='setslist' id='setsinput'></input>\
-//               Banlist <select><option>None</option></select><br/>\
-//               <span id='sresults'></span>"
-//     document.getElementById('swapsources').innerText="Use cardlist"      
-//   }
-//   document.getElementById('sources').innerHTML=html
-// }
+  //Populate stored decks on window load
+  Object.keys(localStorage).forEach(function(d){
+    var opt=document.createElement('option')
+    opt.value=opt.text=d
+    document.getElementById('saveddecks').add(opt)
+  })
 
-//Adding searched race
-document.getElementById('racesinput').addEventListener('keydown',function(e){
-  if(e.key=="Enter"){
-    var nrace=document.getElementById('racesinput').value
-    if(races.includes(nrace) && !search_params.races.includes(nrace)){
-      document.getElementById('rresults').innerHTML+="<span id='raceresult'>"+nrace+"</span>"
-      search_params.races.push(nrace)
-      document.getElementById('racesinput').value=""
-      filtercards()
+  //Change from card pool to cardlist
+  // document.getElementById('swapsources').onclick=function(){
+  //   reset_search()
+  //   search_source=!search_source
+  //   if(search_source==1){
+  //     var html="<button>Import cardlist</button>"
+  //     document.getElementById('swapsources').innerText="Use card pool"    
+  //   }
+  //   else{
+  //     var html="Format <select><option>Wanderer</option></select>\
+  //               sets <input type='text' list='setslist' id='setsinput'></input>\
+  //               Banlist <select><option>None</option></select><br/>\
+  //               <span id='sresults'></span>"
+  //     document.getElementById('swapsources').innerText="Use cardlist"      
+  //   }
+  //   document.getElementById('sources').innerHTML=html
+  // }
 
-      //Remove on click
-      var allr=document.querySelectorAll('[id=raceresult]')
-      for(var i=0;i<allr.length;i++){
-        allr[i].onclick=function(){
-          search_params.races.splice(search_params.races.indexOf(this.innerHTML),1)
-          this.outerHTML=""
-          filtercards()
+  //Adding searched race
+  document.getElementById('racesinput').addEventListener('keydown',function(e){
+    if(e.key=="Enter"){
+      var nrace=document.getElementById('racesinput').value
+      if(races.includes(nrace) && !search_params.races.includes(nrace)){
+        document.getElementById('rresults').innerHTML+="<span id='raceresult'>"+nrace+"</span>"
+        search_params.races.push(nrace)
+        document.getElementById('racesinput').value=""
+        filtercards()
+
+        //Remove on click
+        var allr=document.querySelectorAll('[id=raceresult]')
+        for(var i=0;i<allr.length;i++){
+          allr[i].onclick=function(){
+            search_params.races.splice(search_params.races.indexOf(this.innerHTML),1)
+            this.outerHTML=""
+            filtercards()
+          }
         }
       }
     }
-  }
-})
+  })
 
-//Adding searched set
-document.getElementById('setsinput').addEventListener('keydown',function(e){
-  if(e.key=="Enter"){
-    var nset=document.getElementById('setsinput').value
-    if(Object.keys(sets).includes(nset) && !search_params.sets.includes(nset)){
-      document.getElementById('sresults').innerHTML+="<div id='setresult'>"+nset+"</div>"
-      search_params.sets.push(nset)
-      document.getElementById('setsinput').value=""
+  //Adding searched set
+  document.getElementById('setsinput').addEventListener('keydown',function(e){
+    if(e.key=="Enter"){
+      var nset=document.getElementById('setsinput').value
+      if(Object.keys(sets).includes(nset) && !search_params.sets.includes(nset)){
+        document.getElementById('sresults').innerHTML+="<div id='setresult'>"+nset+"</div>"
+        search_params.sets.push(nset)
+        document.getElementById('setsinput').value=""
+        filtercards()
+
+        //Remove on click
+        var allr=document.querySelectorAll('[id=setresult]')
+        for(var i=0;i<allr.length;i++){
+          allr[i].onclick=function(){
+            search_params.sets.splice(search_params.sets.indexOf(this.innerHTML),1)
+            this.outerHTML=""
+            filtercards()
+          }
+        }    
+      }
+    }
+  })
+
+  //Card type into search params
+  var typedivs=document.querySelectorAll('[id=cardtype]')
+  for(var i=0;i<typedivs.length;i++){
+    typedivs[i].onclick=function(){
+      if(search_params.types.indexOf(this.innerText)==-1){
+        search_params.types.push(this.innerText)
+        this.style.border='1px solid white'
+        this.style.backgroundColor="#CCC"
+      }
+      else{
+        this.style.border='1px solid black'
+        this.style.backgroundColor=""
+        search_params.types.splice(search_params.types.indexOf(this.innerText),1)
+      }
       filtercards()
-
-      //Remove on click
-      var allr=document.querySelectorAll('[id=setresult]')
-      for(var i=0;i<allr.length;i++){
-        allr[i].onclick=function(){
-          search_params.sets.splice(search_params.sets.indexOf(this.innerHTML),1)
-          this.outerHTML=""
-          filtercards()
-        }
-      }    
     }
   }
-})
 
-//Card type into search params
-var typedivs=document.querySelectorAll('[id=cardtype]')
-for(var i=0;i<typedivs.length;i++){
-  typedivs[i].onclick=function(){
-    if(search_params.types.indexOf(this.innerText)==-1){
-      search_params.types.push(this.innerText)
-      this.style.border='1px solid white'
-      this.style.backgroundColor="#CCC"
-    }
-    else{
-      this.style.border='1px solid black'
-      this.style.backgroundColor=""
-      search_params.types.splice(search_params.types.indexOf(this.innerText),1)
-    }
-    filtercards()
-  }
 }
 
 //generates decklist
@@ -591,7 +594,9 @@ function drawcards()
       html+="<div id='zoomcard'>"
       html+="<img src='./medium/"+tc.id+".png' style='float:left'></img><br/>"
       html+="<span id='cardinfo'>"
-      html+=tc.cost+"<br/>"+tc.name+"<br/><br/>"
+      html+=tc.cost+"<br/>"+tc.name+"<br/>"+tc.type
+      if(tc.race.length>0){html+=" | "+tc.race}
+      html+="<br/><br/>"
       tc.abilities.forEach(a=>html+=a+"<br/><br/>")
       html+="</span></div>"
       document.body.innerHTML+=html
@@ -601,6 +606,9 @@ function drawcards()
       document.getElementById('zoomcard').onclick=function(){
         this.outerHTML=""
         drawcards()
+        drawdeck()
+        drawsearch()
+        addlisteners()
       }
       return false
     }
@@ -911,4 +919,5 @@ filtercards()
 drawcards()
 drawdeck()
 drawsearch()
+addlisteners()
 }
