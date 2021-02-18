@@ -7,3 +7,6 @@
 [submodule "img"]
 	path = img
 	url = https://github.com/attoractiamem/cards-images-thumbnails
+[submodule "medium"]
+	path = medium
+	url = https://github.com/attoractiamem/cards-images-medium

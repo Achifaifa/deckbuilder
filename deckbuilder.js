@@ -584,6 +584,27 @@ function drawcards()
       drawdeck()
     }
 
+    //Right click to zoom
+    dcards[i].oncontextmenu=function(){
+      var tc=filteredcards[this.id]
+      html=""
+      html+="<div id='zoomcard'>"
+      html+="<img src='./medium/"+tc.id+".png' style='float:left'></img><br/>"
+      html+="<span id='cardinfo'>"
+      html+=tc.cost+"<br/>"+tc.name+"<br/><br/>"
+      tc.abilities.forEach(a=>html+=a+"<br/><br/>")
+      html+="</span></div>"
+      document.body.innerHTML+=html
+
+
+      //add listener to exit on click
+      document.getElementById('zoomcard').onclick=function(){
+        this.outerHTML=""
+        drawcards()
+      }
+      return false
+    }
+
     //use loop to fix width
     dcards[i].style.width=cardwidth
     dcards[i].style.height=cardwidth*1.41
