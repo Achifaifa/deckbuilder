@@ -1,12 +1,11 @@
-//-----Stuff reported by people (fix this first)-----
+// TO-DO:
 //
+// --Low-prio
 //
-//-----Extra stuff-------
-//
-// Deck size limit
+// Deck size indicator
+// Import cardlist from booster generator
 // Banlist filtering
 // Full stats on graph click
-// Import cardlist from booster generator
 // bugs when renaming several decks simultaneously
 // bugs when deleting extra deck causing other EDs to not show
 
@@ -707,11 +706,11 @@ function loadcards(){
       carddb=carddb.concat(cards[i].sets[j].cards)
     }
   }
-  //populate races array and remove J-rulers
+  //populate races array and remove J-rulers and alternative cards (w/o images)
   races=[]
   var ndb=[]
   for(var i=0;i<carddb.length;i++){
-    if(!carddb[i].id.includes("J")){
+    if(!carddb[i].id.includes("J") && !carddb[i].name.includes("[Alternative]")){
       ndb.push(carddb[i])
     }
     for(j=0;j<carddb[i].race.length;j++){
@@ -735,12 +734,20 @@ function reset_search(){
     'textc':"",
     'sets':[]
   }
+
+  //Reset styles in card types
   document.querySelectorAll('[id=cardtype]').forEach(a=>{
     a.style.backgroundColor=""
     a.style.border="1px solid black"
   })
-    
+
+  //Remove previously selected races
+  document.getElementById('rresults').innerHTML=""
+  
+  //Select default format
   document.getElementById('formatselect').value="Wanderer"
+
+  //Redraw stuff
   search_page=0
   filtercards()
   drawsearch()
