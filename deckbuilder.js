@@ -508,7 +508,11 @@ function drawcards()
     var index=(search_page*tcards)+i
     if(index<filteredcards.length){
       html+="<div class='card' id='"+index+"' "
-      if(imageloads==1){html+="style='background-image:url(./img/"+filteredcards[index].id+".jpg);'"}
+      if(imageloads==1){
+        //fix images for split cards with * in the filename
+        var tid=filteredcards[index].id.replace("*","")
+        html+="style='background-image:url(./img/"+tid+".jpg);'"
+      }
       html+="><br/>"
       if(overlay==1){html+="<center>"+filteredcards[index].cost+"<br/>"+filteredcards[index].name+"<br/>"}
       html+="</div>"
