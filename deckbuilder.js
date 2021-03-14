@@ -578,7 +578,8 @@ function drawcards()
         for(var i=0;i<deck[cardtarget].length;i++){
           if(deck[cardtarget][i].id==filteredcards[index].id){
             already=true
-            if(deck[cardtarget][i].amount<4){deck[cardtarget][i].amount+=1}
+            if(filteredcards[index].type!="Basic Magic Stone" && deck[cardtarget][i].amount<4){deck[cardtarget][i].amount+=1}
+            else if(filteredcards[index].type=="Basic Magic Stone"){deck[cardtarget][i].amount+=1}
           }
         }
         if(!already){
