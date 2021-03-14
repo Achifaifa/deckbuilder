@@ -2,7 +2,6 @@
 //
 // --Low-prio
 //
-// Deck size indicator
 // Import cardlist from booster generator
 // Banlist filtering
 // Full stats on graph click
@@ -337,6 +336,14 @@ function addremcards(tgt,cid,qty){
   drawdeck()
 }
 
+//Returns numbers of cards in a given deck
+function countdeck(d){
+
+  var count=0
+  deck[d].forEach(a=>count+=a.amount)
+  return count
+}
+
 //Draw deck on deck zone
 function drawdeck()
 {
@@ -344,18 +351,18 @@ function drawdeck()
   html+="<b id='deckname'>"+deck.deckname+"</b><br/>"
   html+="<canvas id='graph'></canvas><br/><br/>"
   html+="<span class='decksection' id='rulerdeck'>Ruler</span><br/>"+deck.ruler.name+"<br/>"
-  html+="<br/><span class='decksection' id='maindeck'>Main deck</span><br/>"
+  html+="<br/><span class='decksection' id='maindeck'>Main deck ("+countdeck('main')+")</span><br/>"
   deck.main.forEach((a,i)=>html+="<span class='deckitemno' id='"+i+"'>"+a.amount+"x</span> <span class='deckitem' id='"+i+"'>"+a.name+"</span><br/>")
-  html+="<br/><span class='decksection' id='stonedeck'>Stone deck</span><br/>"
+  html+="<br/><span class='decksection' id='stonedeck'>Stone deck ("+countdeck('stone')+")</span><br/>"
   deck.stone.forEach((a,i)=>html+="<span class='sdeckitemno' id='"+i+"'>"+a.amount+"x</span> <span class='sdeckitem' id='"+i+"'>"+a.name+"</span><br/>")
   var i=1
   while (deck["extra"+i]!=undefined){
-    html+="<br/><span class='decksection' id='extra"+i+"deck'>"+deck["extra"+i+"name"]+"</span><br/>"
+    html+="<br/><span class='decksection' id='extra"+i+"deck'>"+deck["extra"+i+"name"]+" ("+countdeck('extra'+i)+")</span><br/>"
     deck['extra'+i].forEach((a,j)=>html+="<span class='e"+i+"deckitemno' id='"+j+"'>"+a.amount+"x</span> <span class='e"+i+"deckitem' id='"+j+"'>"+a.name+"</span><br/>")
     i+=1
   }
   html+="<br/><button id='addextra'>Add extra deck</button><br/>"
-  html+="<br/><span class='decksection' id='sidedeck'>Sideboard</span><br/>"
+  html+="<br/><span class='decksection' id='sidedeck'>Sideboard ("+countdeck('side')+")</span><br/>"
   deck.side.forEach((a,i)=>html+="<span class='sideckitemno' id='"+i+"'>"+a.amount+"x</span> <span class='sideckitem' id='"+i+"'>"+a.name+"</span><br/>")    
 
   document.getElementById('deck').innerHTML=html
