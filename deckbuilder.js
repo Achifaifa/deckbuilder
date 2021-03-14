@@ -12,7 +12,7 @@ window.onload=function(){
 
 search_expanded=0
 settings_expanded=0
-overlay=1 //readable text overlay on cards
+overlay=0 //readable text overlay on cards
 imageloads=1//image loading. Disabling it saves bandwidth
 search_source=0 //0: normal pool, 1: cardlist
 //these can probably be optimized out
