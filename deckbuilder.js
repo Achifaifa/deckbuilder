@@ -301,7 +301,18 @@ function decktotxt(){
   var outf=document.getElementById('saveformat').value
   var dtxt=""
   if(outf=="ut"){
-    //to-do, not sure what format untap uses
+    dtxt+="//deck-1\n"//main deck
+    deck.main.forEach(a=>dtxt+=a.amount+" "+a.name+"\n")
+    dtxt+="\n//deck-2\n"//magic stone deck
+    deck.stone.forEach(a=>dtxt+=a.amount+" "+a.name+"\n")
+    dtxt+="\n//play-1\n1 "+deck.ruler.name+"\n"
+    var i=1
+    while(deck["extra"+i]!=undefined){
+      dtxt+="\n//deck-"+(2+i)+"\n"
+      deck["extra"+i].forEach(a=>dtxt+=a.amount+" "+a.name+"\n")
+      i+=1
+    }
+
   }
   else if(outf=="json"){
     dtxt=JSON.stringify(deck)
