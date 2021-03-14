@@ -28,6 +28,7 @@ sets={}//Dictionary of set names and codes, populated on data load
 formats={//Dictionary of formats and sets allowed in them
   //to-do there's probably a better way
   "Wanderer":[
+    "The Magic Stone War - Zero",
     "Advent of the Demon King",
     "Alice Origin",
     "Alice Origin II",
@@ -75,6 +76,7 @@ formats={//Dictionary of formats and sets allowed in them
     "Winds of the Ominous Moon"
   ],
   "New Frontiers":[
+    "The Magic Stone War - Zero",
     "Alice Origin",
     "Alice Origin II",
     "Alice Origin III",
